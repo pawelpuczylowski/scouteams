@@ -5,9 +5,12 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using ScouTeams.Areas.Identity.Data;
+using ScouTeams.Data;
 
 namespace ScouTeams
 {
@@ -25,6 +28,17 @@ namespace ScouTeams
         {
             services.AddControllersWithViews();
             services.AddRazorPages();
+
+            services.AddDbContext<ScouTDBContext>(options =>
+                options.UseSqlServer(Configuration.GetConnectionString("ScouTDBContextConnection")));
+
+            services.AddDefaultIdentity<Scout>(options =>
+            {
+                options.SignIn.RequireConfirmedAccount = false;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireUppercase = false;
+            })
+                    .AddEntityFrameworkStores<ScouTDBContext>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -48,7 +62,6 @@ namespace ScouTeams
             app.UseAuthentication();
             app.UseAuthorization();
 
-            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {

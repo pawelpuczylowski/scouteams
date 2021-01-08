@@ -8,15 +8,15 @@ namespace ScouTeams.Models
 {
     public enum FunctionName
     {
-        [Display(Name = "Podzastępowy")] Podzastepowy, [Display(Name = "Zastępowy")] Zastepowy, 
-        Przyboczny, [Display(Name = "Drużynowy")] Druzynowy, Kapelan,
+        Brak, [Display(Name = "Podzastępowy(-wa)")] Podzastepowy, [Display(Name = "Zastępowy(-wa)")] Zastepowy, 
+        Przyboczny, [Display(Name = "Drużynowy(-wa)")] Druzynowy, Kapelan,
         Komendant, [Display(Name = "Zastępca komendanta")] ZastępcaKomendanta, [Display(Name = "Członek")] Czlonek,
         [Display(Name = "Członek Komisji Rewizyjnej")] CzłonekKomisjiRewizyjnej, 
         [Display(Name = "Zastępca przewodniczącego Komisji Rewizyjnej")] ZastępcaPrzewodniczącegoKomisjiRewizyjnej, 
-        [Display(Name = "Przewodniczący Komisji Rewizyjnej")] PrzewodniczącyKomisjiRewizyjnej,
+        [Display(Name = "Przewodniczący(-ca) Komisji Rewizyjnej")] PrzewodniczącyKomisjiRewizyjnej,
         [Display(Name = "Członek Sądu Harcerskiego")] CzłonekSąduHarcerskiego,
         [Display(Name = "Zastępca Przewodniczącego Sądu Harcerskiego")] ZastępcaPrzewodniczącegoSąduHarcerskiego,
-        [Display(Name = "Przewodniczący Sądu Harcerskiego")] PrzewodniczącySąduHarcerskiego
+        [Display(Name = "Przewodniczący(-ca) Sądu Harcerskiego")] PrzewodniczącySąduHarcerskiego
     }
 
     public class FunctionInOrganization

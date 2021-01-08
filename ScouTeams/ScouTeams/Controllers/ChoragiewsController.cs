@@ -1,0 +1,160 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using ScouTeams.Data;
+using ScouTeams.Models;
+
+namespace ScouTeams.Controllers
+{
+    public class ChoragiewsController : Controller
+    {
+        private readonly ScouTDBContext _context;
+
+        public ChoragiewsController(ScouTDBContext context)
+        {
+            _context = context;
+        }
+
+        // GET: Choragiews
+        public async Task<IActionResult> Index()
+        {
+            var scouTDBContext = _context.Choragiews.Include(c => c.KwateraGlowna);
+            return View(await scouTDBContext.ToListAsync());
+        }
+
+        // GET: Choragiews/Details/5
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var choragiew = await _context.Choragiews
+                .Include(c => c.KwateraGlowna)
+                .FirstOrDefaultAsync(m => m.ChoragiewId == id);
+            if (choragiew == null)
+            {
+                return NotFound();
+            }
+
+            return View(choragiew);
+        }
+
+        // GET: Choragiews/Create
+        public IActionResult Create()
+        {
+            ViewData["KwateraGlownaId"] = new SelectList(_context.KwateraGlowna, "KwateraGlownaId", "KwateraGlownaId");
+            return View();
+        }
+
+        // POST: Choragiews/Create
+        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
+        // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([Bind("ChoragiewId,Name,KwateraGlownaId")] Choragiew choragiew)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Add(choragiew);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            ViewData["KwateraGlownaId"] = new SelectList(_context.KwateraGlowna, "KwateraGlownaId", "KwateraGlownaId", choragiew.KwateraGlownaId);
+            return View(choragiew);
+        }
+
+        // GET: Choragiews/Edit/5
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var choragiew = await _context.Choragiews.FindAsync(id);
+            if (choragiew == null)
+            {
+                return NotFound();
+            }
+            ViewData["KwateraGlownaId"] = new SelectList(_context.KwateraGlowna, "KwateraGlownaId", "KwateraGlownaId", choragiew.KwateraGlownaId);
+            return View(choragiew);
+        }
+
+        // POST: Choragiews/Edit/5
+        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
+        // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, [Bind("ChoragiewId,Name,KwateraGlownaId")] Choragiew choragiew)
+        {
+            if (id != choragiew.ChoragiewId)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Update(choragiew);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!ChoragiewExists(choragiew.ChoragiewId))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction(nameof(Index));
+            }
+            ViewData["KwateraGlownaId"] = new SelectList(_context.KwateraGlowna, "KwateraGlownaId", "KwateraGlownaId", choragiew.KwateraGlownaId);
+            return View(choragiew);
+        }
+
+        // GET: Choragiews/Delete/5
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var choragiew = await _context.Choragiews
+                .Include(c => c.KwateraGlowna)
+                .FirstOrDefaultAsync(m => m.ChoragiewId == id);
+            if (choragiew == null)
+            {
+                return NotFound();
+            }
+
+            return View(choragiew);
+        }
+
+        // POST: Choragiews/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var choragiew = await _context.Choragiews.FindAsync(id);
+            _context.Choragiews.Remove(choragiew);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+
+        private bool ChoragiewExists(int id)
+        {
+            return _context.Choragiews.Any(e => e.ChoragiewId == id);
+        }
+    }
+}

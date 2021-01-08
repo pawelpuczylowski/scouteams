@@ -15,19 +15,6 @@ namespace ScouTeams.Areas.Identity
     {
         public void Configure(IWebHostBuilder builder)
         {
-            builder.ConfigureServices((context, services) => {
-                services.AddDbContext<ScouTDBContext>(options =>
-                    options.UseSqlServer(
-                        context.Configuration.GetConnectionString("ScouTDBContextConnection")));
-
-                services.AddDefaultIdentity<Scout>(options =>
-                {
-                    options.SignIn.RequireConfirmedAccount = false;
-                    options.Password.RequireLowercase = false;
-                    options.Password.RequireUppercase = false;
-                })
-                    .AddEntityFrameworkStores<ScouTDBContext>();
-            });
         }
     }
 }
