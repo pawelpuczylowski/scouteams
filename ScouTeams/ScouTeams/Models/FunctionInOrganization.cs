@@ -8,15 +8,17 @@ namespace ScouTeams.Models
 {
     public enum FunctionName
     {
-        Brak, [Display(Name = "Podzastępowy(-wa)")] Podzastepowy, [Display(Name = "Zastępowy(-wa)")] Zastepowy, 
-        Przyboczny, [Display(Name = "Drużynowy(-wa)")] Druzynowy, Kapelan,
-        Komendant, [Display(Name = "Zastępca komendanta")] ZastępcaKomendanta, [Display(Name = "Członek")] Czlonek,
-        [Display(Name = "Członek Komisji Rewizyjnej")] CzłonekKomisjiRewizyjnej, 
-        [Display(Name = "Zastępca przewodniczącego Komisji Rewizyjnej")] ZastępcaPrzewodniczącegoKomisjiRewizyjnej, 
-        [Display(Name = "Przewodniczący(-ca) Komisji Rewizyjnej")] PrzewodniczącyKomisjiRewizyjnej,
-        [Display(Name = "Członek Sądu Harcerskiego")] CzłonekSąduHarcerskiego,
-        [Display(Name = "Zastępca Przewodniczącego Sądu Harcerskiego")] ZastępcaPrzewodniczącegoSąduHarcerskiego,
-        [Display(Name = "Przewodniczący(-ca) Sądu Harcerskiego")] PrzewodniczącySąduHarcerskiego
+        Brak, [Display(Name = "Podzastępowy(-wa)")] Podzastepowy, [Display(Name = "Zastępowy(-wa)")] Zastepowy,
+        [Display(Name = "Przyboczny(-na)")] Przyboczny, [Display(Name = "Drużynowy(-wa)")] Druzynowy, Kapelan, Skarbnik,
+        Komendant, [Display(Name = "Zastępca(-czyni) komendanta")] ZastepcaKomendanta, [Display(Name = "Członek")] Czlonek,
+        [Display(Name = "Członek Komisji Rewizyjnej")] CzlonekKomisjiRewizyjnej, 
+        [Display(Name = "Zastępca(-czyni) przewodniczącego Komisji Rewizyjnej")] ZastepcaPrzewodniczacegoKomisjiRewizyjnej, 
+        [Display(Name = "Przewodniczący(-ca) Komisji Rewizyjnej")] PrzewodniczacyKomisjiRewizyjnej,
+        [Display(Name = "Członek Sądu Harcerskiego")] CzlonekSaduHarcerskiego,
+        [Display(Name = "Zastępca Przewodniczącego Sądu Harcerskiego")] ZastepcaPrzewodniczacegoSaduHarcerskiego,
+        [Display(Name = "Przewodniczący(-ca) Sądu Harcerskiego")] PrzewodniczacySaduHarcerskiego,
+        [Display(Name = "Naczelnik ZHP")] NaczelnikZHP, [Display(Name = "Naczelniczka ZHP")] NaczelniczkaZHP,
+        [Display(Name = "Zastępca(-czyni) Naczelnika ZHP")] ZastepcaNaczelnikaZHP
     }
 
     public class FunctionInOrganization
@@ -27,7 +29,7 @@ namespace ScouTeams.Models
         [Display(Name = "Indeks harcerza")]
         public string ScoutId { get; set; }
 
-        [Display(Name = "Indeks użytkownika")]
+        [Display(Name = "Funkcja")]
         public FunctionName FunctionName { get; set; }
 
         [Display(Name = "Indeks chorągwi")]

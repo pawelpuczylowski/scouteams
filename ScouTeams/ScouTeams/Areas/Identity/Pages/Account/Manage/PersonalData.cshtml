@@ -6,21 +6,63 @@
 }
 
 <h4>@ViewData["Title"]</h4>
-
+<partial name="_StatusMessage" model="Model.StatusMessage" />
 <div class="row">
     <div class="col-md-6">
-        <p>Your account contains personal data that you have given us. This page allows you to download or delete that data.</p>
-        <p>
-            <strong>Deleting this data will permanently remove your account, and this cannot be recovered.</strong>
-        </p>
-        <form id="download-data" asp-page="DownloadPersonalData" method="post" class="form-group">
-            <button class="btn btn-primary" type="submit">Download</button>
+        <form id="personalDataModel-form" method="post">
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="Input.FirstName"></label>
+                        <input asp-for="Input.FirstName" class="form-control" />
+                        <span asp-validation-for="Input.FirstName" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="Input.LastName"></label>
+                        <input asp-for="Input.LastName" class="form-control" />
+                        <span asp-validation-for="Input.LastName" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label asp-for="Input.Recruitment"></label>
+                <input asp-for="Input.Recruitment" class="form-control" />
+                <span asp-validation-for="Input.Recruitment" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Input.DateOfBirth"></label>
+                <input asp-for="Input.DateOfBirth" class="form-control" />
+                <span asp-validation-for="Input.DateOfBirth" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ScoutDegree"></label>
+                <input asp-for="ScoutDegree" class="form-control" disabled/>
+            </div>
+            <div class="form-group">
+                <label asp-for="InstructorDegree"></label>
+                <input asp-for="InstructorDegree" class="form-control" disabled/>
+            </div>
+            <button id="update-personalData-button" type="submit" class="btn btn-primary">Save</button>
         </form>
-        <p>
-            <a id="delete" asp-page="DeletePersonalData" class="btn btn-primary">Delete</a>
-        </p>
     </div>
 </div>
+@*<div class="row">
+        <div class="col-md-6">
+            <p>Your account contains personal data that you have given us. This page allows you to download or delete that data.</p>
+            <p>
+                <strong>Deleting this data will permanently remove your account, and this cannot be recovered.</strong>
+            </p>
+            <form id="download-data" asp-page="DownloadPersonalData" method="post" class="form-group">
+                <button class="btn btn-primary" type="submit">Download</button>
+            </form>
+            <p>
+                <a id="delete" asp-page="DeletePersonalData" class="btn btn-primary">Delete</a>
+            </p>
+        </div>
+    </div>*@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

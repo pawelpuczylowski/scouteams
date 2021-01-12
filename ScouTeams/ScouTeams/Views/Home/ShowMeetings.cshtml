@@ -1,0 +1,41 @@
+﻿@model IEnumerable<ScouTeams.ViewModels.MeetingWithPresence>
+
+@{
+    ViewData["Title"] = "ShowMeetings";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.ZastepName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Date)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Presence)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.ZastepName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Date)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Presence)
+            </td>
+            <td>
+                @Html.ActionLink("Details", "Details", "Product", new {id = item.MeetingId}, null)
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
