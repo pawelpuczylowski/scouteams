@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using ScouTeams.Areas.Identity.Data;
 using ScouTeams.Data;
@@ -21,7 +22,7 @@ namespace ScouTeams.Controllers
         private readonly SignInManager<Scout> _signInManager;
         private readonly ILogger<HomeController> _logger;
         private readonly ScouTDBContext _context;
-
+        private int OrganizationId;
 
         public HomeController(SignInManager<Scout> signInManager, ILogger<HomeController> logger, UserManager<Scout> userManager, ScouTDBContext context)
         {
@@ -29,6 +30,7 @@ namespace ScouTeams.Controllers
             _signInManager = signInManager;
             _logger = logger;
             _context = context;
+            OrganizationId = -1;
         }
 
         public async Task<IActionResult> ShowAssignments()
@@ -81,7 +83,7 @@ namespace ScouTeams.Controllers
 
             return View(assignments);
         }
-
+               
         public async Task<IActionResult> ShowContributions()
         {
             var user = await _userManager.GetUserAsync(User);
@@ -110,7 +112,7 @@ namespace ScouTeams.Controllers
                 {
                     MeetingWithPresence meetingWithPresence = new MeetingWithPresence();
                     meetingWithPresence.MeetingId = m.MeetingId;
-                    var zastep = _context.Zastep.FirstOrDefault(z => z.ZastepId == m.ZastepId);
+                    var zastep = await _context.Zastep.FirstOrDefaultAsync(z => z.ZastepId == m.ZastepId);
                     if(zastep != null)
                     {
                         meetingWithPresence.ZastepName = zastep.Name;
@@ -125,7 +127,7 @@ namespace ScouTeams.Controllers
                     {
                         MeetingWithPresence meetingWithPresence = new MeetingWithPresence();
                         meetingWithPresence.MeetingId = m.MeetingId;
-                        var zastep = _context.Zastep.FirstOrDefault(z => z.ZastepId == m.ZastepId);
+                        var zastep = await _context.Zastep.FirstOrDefaultAsync(z => z.ZastepId == m.ZastepId);
                         if (zastep != null)
                         {
                             meetingWithPresence.ZastepName = zastep.Name;
@@ -169,19 +171,24 @@ namespace ScouTeams.Controllers
             switch (myAssignment.TypeOrganization)
             {
                 case TypeOrganization.KwateraGlowna:
-                    RedirectToAction(nameof(ShowKwateraGlowna), new { id = myAssignment.OrganizationId });
+                    OrganizationId = myAssignment.OrganizationId;
+                    RedirectToAction(nameof(ShowKwateraGlowna));
                     break;
                 case TypeOrganization.Choragiew:
-                    RedirectToAction(nameof(ShowKwateraGlowna), new { id = myAssignment.OrganizationId });
+                    OrganizationId = myAssignment.OrganizationId;
+                    RedirectToAction(nameof(ShowKwateraGlowna));
                     break;
                 case TypeOrganization.Hufiec:
-                    RedirectToAction(nameof(ShowKwateraGlowna), new { id = myAssignment.OrganizationId });
+                    OrganizationId = myAssignment.OrganizationId;
+                    RedirectToAction(nameof(ShowKwateraGlowna));//, new { id = myAssignment.OrganizationId });
                     break;
                 case TypeOrganization.Druzyna:
-                    RedirectToAction(nameof(ShowKwateraGlowna), new { id = myAssignment.OrganizationId });
+                    OrganizationId = myAssignment.OrganizationId;
+                    RedirectToAction(nameof(ShowKwateraGlowna));
                     break;
                 case TypeOrganization.Zastep:
-                    RedirectToAction(nameof(ShowKwateraGlowna), new { id = myAssignment.OrganizationId });
+                    OrganizationId = myAssignment.OrganizationId;
+                    RedirectToAction(nameof(ShowKwateraGlowna));
                     break;
                 default:
                     RedirectToAction(nameof(Index));
@@ -189,9 +196,105 @@ namespace ScouTeams.Controllers
             }
         }
 
-        public IActionResult ShowKwateraGlowna(int id)
+        public async Task<IActionResult> ShowKwateraGlowna(string sortOrder, string currentFilter, string searchString, int? pageNumber)
         {
-            return View();
+            if (OrganizationId < 0) 
+            {
+                RedirectToAction(nameof(Index));
+            }
+
+            var id = OrganizationId;
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+            }
+
+            var tmp = await _context.KwateraGlowna.FirstOrDefaultAsync(x => x.KwateraGlownaId == id);
+            if (tmp == null)
+            {
+                return NotFound();
+            }
+            if(user.KwateraGlowna.KwateraGlownaId != id)
+            {
+                RedirectToAction(nameof(Index));
+            }            
+
+            var myScouts = new List<ScoutViewModel>();
+            foreach (var scout in tmp.Scouts)
+            {
+                var scoutViewModel = new ScoutViewModel();
+                scoutViewModel.FirstName = scout.FirstName;
+                scoutViewModel.LastName = scout.LastName;
+
+                if(scout.FunctionInOrganizations != null)
+                {
+                    var tmpList = new List<FunctionName>();
+
+                    foreach (var function in scout.FunctionInOrganizations)
+                    {
+                        if (function.ChorągiewId == id && function.HufiecId == id && function.DruzynaId == id && function.ZastepId == id)
+                        {
+                            tmpList.Add(function.FunctionName);
+                        }
+                    }
+                    scoutViewModel.Functions = string.Join(", ", tmpList);
+                }
+                scoutViewModel.Email = scout.Email;
+                scoutViewModel.DateOfBirth = scout.DateOfBirth;
+
+                if (scout.Contributions != null || scout.Contributions.Count - 1 < MonthDifference(scout.Contributions.First().Date)) scoutViewModel.PaidContributions = true;
+                else scoutViewModel.PaidContributions = false;
+                
+                scoutViewModel.ScoutDegree = scout.ScoutDegree;
+                scoutViewModel.InstructorDegree = scout.InstructorDegree;
+                myScouts.Add(scoutViewModel);
+            }
+
+            ViewData["CurrentSort"] = sortOrder;
+            ViewData["NameSortParm"] = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
+            ViewData["DateSortParm"] = sortOrder == "Date" ? "date_desc" : "Date";
+            if (searchString != null)
+            {
+                pageNumber = 1;
+            }
+            else
+            {
+                searchString = currentFilter;
+            }
+            ViewData["CurrentFilter"] = searchString;
+
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                myScouts = myScouts.Where(s => s.LastName.ToUpper().Contains(searchString.ToUpper()) || s.FirstName.ToUpper().Contains(searchString.ToUpper())).ToList();
+            }
+
+            switch (sortOrder)
+            {
+                case "name_desc":
+                    myScouts = myScouts.OrderByDescending(s => s.LastName).ToList();
+                    break;
+                case "Date":
+                    myScouts = myScouts.OrderBy(s => s.DateOfBirth).ToList();
+                    break;
+                case "date_desc":
+                    myScouts = myScouts.OrderByDescending(s => s.DateOfBirth).ToList();
+                    break;
+                default:
+                    myScouts = myScouts.OrderBy(s => s.LastName).ToList();
+                    break;
+            }
+
+            int pageSize = 3;
+            return View(await PaginatedList<ScoutViewModel>.CreateAsync(myScouts, pageNumber ?? 1, pageSize));
+        
+            //return View(myScouts);
+        }
+
+        public int MonthDifference(DateTime dateTime)
+        {
+            var now = DateTime.Now;
+            return ((now.Month - dateTime.Month) + 12 * (now.Year - dateTime.Year));
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
