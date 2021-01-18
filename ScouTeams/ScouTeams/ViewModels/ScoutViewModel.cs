@@ -1,4 +1,6 @@
-﻿using ScouTeams.Areas.Identity.Data;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using ScouTeams.Areas.Identity.Data;
+using ScouTeams.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -9,6 +11,8 @@ namespace ScouTeams.ViewModels
 {
     public class ScoutViewModel
     {
+        public string Id { get; set; }
+
         [Display(Name = "Imię")]
         public string FirstName { get; set; }
 
@@ -26,6 +30,11 @@ namespace ScouTeams.ViewModels
 
         [Display(Name = "Opłacone składki")]
         public bool PaidContributions { get; set; }
+
+        public FunctionName functionName { get; set; }
+        public int ThisOrganizationId { get; set; }
+        public TypeOrganization ThisTypeOrganization { get; set; }
+
 
         [Display(Name = "Stopień harcerski")]
         public ScoutDegree ScoutDegree { get; set; }

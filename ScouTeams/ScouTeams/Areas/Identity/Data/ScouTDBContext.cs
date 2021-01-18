@@ -28,6 +28,11 @@ namespace ScouTeams.Data
         public DbSet<Scout> Scouts { get; set; }
         public DbSet<ScoutPresence> ScoutPresence { get; set; }
         public DbSet<Zastep> Zastep { get; set; }
+        public DbSet<UserZastep> UserZasteps { get; set; }
+        public DbSet<UserDruzyna> UserDruzynas { get; set; }
+        public DbSet<UserHufiec> UserHufiecs { get; set; }
+        public DbSet<UserChoragiew> UserChoragiews { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

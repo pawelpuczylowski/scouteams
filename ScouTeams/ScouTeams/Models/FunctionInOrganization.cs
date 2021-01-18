@@ -17,7 +17,7 @@ namespace ScouTeams.Models
         [Display(Name = "Członek Sądu Harcerskiego")] CzlonekSaduHarcerskiego,
         [Display(Name = "Zastępca Przewodniczącego Sądu Harcerskiego")] ZastepcaPrzewodniczacegoSaduHarcerskiego,
         [Display(Name = "Przewodniczący(-ca) Sądu Harcerskiego")] PrzewodniczacySaduHarcerskiego,
-        [Display(Name = "Naczelnik ZHP")] NaczelnikZHP, [Display(Name = "Naczelniczka ZHP")] NaczelniczkaZHP,
+        [Display(Name = "Naczelnik/Naczelniczka ZHP")] NaczelnikZHP,
         [Display(Name = "Zastępca(-czyni) Naczelnika ZHP")] ZastepcaNaczelnikaZHP
     }
 

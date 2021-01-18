@@ -1,21 +1,20 @@
 ﻿@model PaginatedList<ScouTeams.ViewModels.ScoutViewModel>
 
 @{
-    ViewData["Title"] = "ShowKwateraGlowna";
+    ViewData["Title"] = "ShowScoutsForRecruitment";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>ShowKwateraGlowna</h1>
-
 <p>
-    <a asp-action="ShowScoutsForRecruitment">Dodaj harcerza</a>
+    <a asp-action="ShowKwateraGlowna">Wróć</a>
 </p>
-<form asp-action="ShowKwateraGlowna" method="get">
+
+<form asp-action="ShowScoutsForRecruitment" method="get">
     <div class="form-actions no-color">
         <p>
             Znajdź po nazwie: <input type="text" name="SearchString" value="@ViewData["CurrentFilter"]" />
             <input type="submit" value="Szukaj" class="btn btn-default" /> |
-            <a asp-action="ShowKwateraGlowna">Wróć do pełnej listy</a>
+            <a asp-action="ShowScoutsForRecruitment">Wróć do pełnej listy</a>
         </p>
     </div>
 </form>
@@ -26,19 +25,13 @@
                 Imię
             </th>
             <th>
-                <a asp-action="ShowKwateraGlowna" asp-route-sortOrder="@ViewData["NameSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">Nazwisko</a>
-            </th>
-            <th>
-                Funkcja
+                <a asp-action="ShowScoutsForRecruitment" asp-route-sortOrder="@ViewData["NameSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">Nazwisko</a>
             </th>
             <th>
                 E-mail
             </th>
             <th>
-                <a asp-action="ShowKwateraGlowna" asp-route-sortOrder="@ViewData["DateSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">Data urodzenia</a>
-            </th>
-            <th>
-                Opłacone składki
+                <a asp-action="ShowScoutsForRecruitment" asp-route-sortOrder="@ViewData["DateSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">Data urodzenia</a>
             </th>
             <th>
                 Stopień harcerski
@@ -60,16 +53,10 @@
                     @Html.DisplayFor(modelItem => item.LastName)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Functions)
-                </td>
-                <td>
                     @Html.DisplayFor(modelItem => item.Email)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.DateOfBirth)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.PaidContributions)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.ScoutDegree)
@@ -78,11 +65,7 @@
                     @Html.DisplayFor(modelItem => item.InstructorDegree)
                 </td>
                 <td>
-                    @Html.ActionLink("Dodaj funkcję", "AddFunctionScout", new { scoutId = item.Id, OrganizationId = ViewData["OrganizationID"], type = ViewData["TypeOrganization"] })
-
-                    @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
-                    @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
-                    @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+                    @Html.ActionLink("Dodaj", "AddScout", new { scoutId = item.Id, OrganizationId = ViewData["OrganizationID"], type = ViewData["TypeOrganization"] })
                 </td>
             </tr>
         }
@@ -94,14 +77,14 @@
     var nextDisabled = !Model.HasNextPage ? "disabled" : "";
 }
 
-<a asp-action="ShowKwateraGlowna"
+<a asp-action="ShowScoutsForRecruitment"
    asp-route-sortOrder="@ViewData["CurrentSort"]"
    asp-route-pageNumber="@(Model.PageIndex - 1)"
    asp-route-currentFilter="@ViewData["CurrentFilter"]"
    class="btn btn-default @prevDisabled">
     Wcześniejsza
 </a>
-<a asp-action="ShowKwateraGlowna"
+<a asp-action="ShowScoutsForRecruitment"
    asp-route-sortOrder="@ViewData["CurrentSort"]"
    asp-route-pageNumber="@(Model.PageIndex + 1)"
    asp-route-currentFilter="@ViewData["CurrentFilter"]"
