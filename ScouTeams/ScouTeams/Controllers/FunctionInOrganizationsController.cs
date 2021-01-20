@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ScouTeams.Data;
 using ScouTeams.Models;
+using ScouTeams.ViewModels;
 
 namespace ScouTeams.Controllers
 {
@@ -20,9 +21,24 @@ namespace ScouTeams.Controllers
         }
 
         // GET: FunctionInOrganizations
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string scoutId, int OrganizationId, TypeOrganization type)
         {
-            return View(await _context.FunctionInOrganizations.ToListAsync());
+            switch (type)
+            {
+                case TypeOrganization.KwateraGlowna:
+
+                    return View(await _context.FunctionInOrganizations.Where(f => f.ScoutId == scoutId && f.ChorągiewId == OrganizationId && f.HufiecId == OrganizationId && f.DruzynaId == OrganizationId && f.ZastepId == OrganizationId).ToListAsync());
+                case TypeOrganization.Choragiew:
+                    return View(await _context.FunctionInOrganizations.Where(f => f.ScoutId == scoutId && f.ChorągiewId == OrganizationId && f.HufiecId == -1 && f.DruzynaId == -1 && f.ZastepId == -1).ToListAsync());
+                case TypeOrganization.Hufiec:
+                    return View(await _context.FunctionInOrganizations.Where(f => f.ScoutId == scoutId && f.ChorągiewId == -1 && f.HufiecId == OrganizationId && f.DruzynaId == -1 && f.ZastepId == -1).ToListAsync());
+                case TypeOrganization.Druzyna:
+                    return View(await _context.FunctionInOrganizations.Where(f => f.ScoutId == scoutId && f.ChorągiewId == -1 && f.HufiecId == -1 && f.DruzynaId == OrganizationId && f.ZastepId == -1).ToListAsync());
+                case TypeOrganization.Zastep:
+                    return View(await _context.FunctionInOrganizations.Where(f => f.ScoutId == scoutId && f.ChorągiewId == -1 && f.HufiecId == -1 && f.DruzynaId == -1 && f.ZastepId == OrganizationId).ToListAsync());
+                default:
+                    return NotFound();
+            }
         }
 
         // GET: FunctionInOrganizations/Details/5
@@ -142,7 +158,7 @@ namespace ScouTeams.Controllers
             var functionInOrganization = await _context.FunctionInOrganizations.FindAsync(id);
             _context.FunctionInOrganizations.Remove(functionInOrganization);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("ShowAssignments", "Home");//, new { area = "" });
         }
 
         private bool FunctionInOrganizationExists(int id)

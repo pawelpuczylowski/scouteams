@@ -5,28 +5,14 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Index</h1>
-
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="ShowAssignments" asp-controller="Home">Rezygnuj</a>
 </p>
 <table class="table">
     <thead>
         <tr>
             <th>
                 @Html.DisplayNameFor(model => model.FunctionName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ChorągiewId)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.HufiecId)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.DruzynaId)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ZastepId)
             </th>
             <th></th>
         </tr>
@@ -38,21 +24,7 @@
                 @Html.DisplayFor(modelItem => item.FunctionName)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.ChorągiewId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.HufiecId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DruzynaId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ZastepId)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.FunctionInOrganizationId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.FunctionInOrganizationId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.FunctionInOrganizationId">Delete</a>
+                <a asp-action="Delete" asp-route-id="@item.FunctionInOrganizationId">Odbierz funkcję</a>
             </td>
         </tr>
 }

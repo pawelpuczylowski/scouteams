@@ -46,45 +46,52 @@ namespace ScouTeams.Controllers
             }
 
             List<Assignment> assignments = new List<Assignment>();
-            if (user.FunctionInOrganizations != null)
+            var functions = _context.FunctionInOrganizations.Where(f => f.ScoutId == user.Id);
+            if (functions != null)
             {
-                foreach (var function in user.FunctionInOrganizations)
+                foreach (var function in functions)
                 {
-                    var kwateraGlowna = user.KwateraGlowna.KwateraGlownaId;
-                    if (kwateraGlowna == function.ZastepId && kwateraGlowna == function.DruzynaId && kwateraGlowna == function.HufiecId && kwateraGlowna == function.ChorągiewId)
+                    if (function.DruzynaId == function.ZastepId && function.HufiecId == function.DruzynaId && function.DruzynaId == function.ChorągiewId)
                     {
-                        Assignment assignment = new Assignment(TypeOrganization.KwateraGlowna, kwateraGlowna, "Kwatera Główna");
+                        Assignment assignment = new Assignment(TypeOrganization.KwateraGlowna, function.DruzynaId, "Kwatera Główna");
                         assignments.Add(assignment);
                     }
-                    if (function.ChorągiewId != -1)
+                    else if (function.ChorągiewId != -1)
                     {
-                        var myAssignment = user.Choragiews.FirstOrDefault(x => x.ChoragiewId == function.ChorągiewId);
-                        Assignment assignment = new Assignment(TypeOrganization.Choragiew, myAssignment.ChoragiewId, myAssignment.Choragiew.Name);
+                        var myAssignment = await _context.Choragiews.FirstOrDefaultAsync(x => x.ChoragiewId == function.ChorągiewId);
+                        Assignment assignment = new Assignment(TypeOrganization.Choragiew, myAssignment.ChoragiewId, myAssignment.Name);
                         assignments.Add(assignment);
                     }
                     else if (function.HufiecId != -1)
                     {
-                        var myAssignment = user.Hufiecs.FirstOrDefault(x => x.HufiecId == function.HufiecId);
-                        Assignment assignment = new Assignment(TypeOrganization.Hufiec, myAssignment.HufiecId, myAssignment.Hufiec.Name);
+                        var myAssignment = await _context.Hufiecs.FirstOrDefaultAsync(x => x.HufiecId == function.HufiecId);
+                        Assignment assignment = new Assignment(TypeOrganization.Hufiec, myAssignment.HufiecId, myAssignment.Name);
                         assignments.Add(assignment);
                     }
                     else if (function.DruzynaId != -1)
                     {
-                        var myAssignment = user.Druzynas.FirstOrDefault(x => x.DruzynaId == function.DruzynaId);
-                        Assignment assignment = new Assignment(TypeOrganization.Druzyna, myAssignment.DruzynaId, myAssignment.Druzyna.Name);
+                        var myAssignment = await _context.Druzynas.FirstOrDefaultAsync(x => x.DruzynaId == function.DruzynaId);
+                        Assignment assignment = new Assignment(TypeOrganization.Druzyna, myAssignment.DruzynaId, myAssignment.Name);
                         assignments.Add(assignment);
                     }
                 }
             }
-            if (user.FunctionInOrganizations != null)
+            try
             {
-                foreach (var zastep in user.Zasteps)
+                var zasteps = _context.UserZasteps.Where(x => x.ScoutId == user.Id);
+                if (zasteps != null)
                 {
-                    Assignment assignment = new Assignment(TypeOrganization.Zastep, zastep.ZastepId, zastep.Zastep.Name);
-                    assignments.Add(assignment);
+                    foreach (var zastep in zasteps)
+                    {
+                        Assignment assignment = new Assignment(TypeOrganization.Zastep, zastep.ZastepId, zastep.Zastep.Name);
+                        assignments.Add(assignment);
+                    }
                 }
             }
-
+            catch (Exception e)
+            {
+                
+            }
             return View(assignments);
         }
 
@@ -454,17 +461,20 @@ namespace ScouTeams.Controllers
                     scoutViewModel.FirstName = scout.FirstName;
                     scoutViewModel.LastName = scout.LastName;
 
-                    if (scout.FunctionInOrganizations != null)
+                    var functions = _context.FunctionInOrganizations.Where(f => f.ScoutId == scout.Id && f.ChorągiewId == tmp.KwateraGlownaId && f.HufiecId == tmp.KwateraGlownaId && f.DruzynaId == tmp.KwateraGlownaId && f.ZastepId == tmp.KwateraGlownaId);
+                    if (functions != null)
                     {
-                        var tmpList = new List<FunctionName>();
+                        var tmpList = new List<string>();
 
-                        foreach (var function in scout.FunctionInOrganizations)
+                        foreach (var function in functions)
                         {
-                            if (function.ChorągiewId == OrganizationId && function.HufiecId == OrganizationId && function.DruzynaId == OrganizationId && function.ZastepId == OrganizationId)
-                            {
-                                tmpList.Add(function.FunctionName);
-                            }
+                            tmpList.Add(function.FunctionName.GetType()
+                            .GetMember(function.FunctionName.ToString())
+                            .First()
+                            .GetCustomAttribute<DisplayAttribute>()
+                            .GetName());
                         }
+
                         scoutViewModel.Functions = string.Join(", ", tmpList);
                     }
 
@@ -524,8 +534,6 @@ namespace ScouTeams.Controllers
                         functionInOrganization.DruzynaId = scoutViewModel.ThisOrganizationId;
                         functionInOrganization.ZastepId = scoutViewModel.ThisOrganizationId;
 
-                        if (scout.FunctionInOrganizations == null) scout.FunctionInOrganizations = new List<FunctionInOrganization>();
-                        scout.FunctionInOrganizations.Add(functionInOrganization);
                         _context.Add(functionInOrganization);
                         await _context.SaveChangesAsync();
                         return RedirectToAction(nameof(Index));
@@ -549,7 +557,89 @@ namespace ScouTeams.Controllers
             return View(scoutViewModel);
         }
 
+        public async Task<IActionResult> EditScoutDegree(string scoutId)
+        {
+            var scout = await _userManager.FindByIdAsync(scoutId);
+            if (scout == null)
+            {
+                return NotFound($"Nie znaleziono harcerza.");
+            }
 
+            var scoutViewModel = new ScoutViewModel();
+            scoutViewModel.Id = scout.Id;
+            scoutViewModel.FirstName = scout.FirstName;
+            scoutViewModel.LastName = scout.LastName;
+            scoutViewModel.ScoutDegree = scout.ScoutDegree;
+            scoutViewModel.InstructorDegree = scout.InstructorDegree;
+
+            return View(scoutViewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditScoutDegree(ScoutViewModel scoutViewModel)
+        {
+            if (scoutViewModel.Id == null)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                var scout = await _userManager.FindByIdAsync(scoutViewModel.Id);
+                if (scout == null)
+                {
+                    return NotFound($"Nie znaleziono harcerza.");
+                }
+
+                scout.ScoutDegree = scoutViewModel.ScoutDegree;
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            return View(scoutViewModel);
+        }
+
+        public async Task<IActionResult> EditInstructorDegree(string scoutId)
+        {
+            var scout = await _userManager.FindByIdAsync(scoutId);
+            if (scout == null)
+            {
+                return NotFound($"Nie znaleziono harcerza.");
+            }
+
+            var scoutViewModel = new ScoutViewModel();
+            scoutViewModel.Id = scout.Id;
+            scoutViewModel.FirstName = scout.FirstName;
+            scoutViewModel.LastName = scout.LastName;
+            scoutViewModel.ScoutDegree = scout.ScoutDegree;
+            scoutViewModel.InstructorDegree = scout.InstructorDegree;
+
+            return View(scoutViewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditInstructorDegree(ScoutViewModel scoutViewModel)
+        {
+            if (scoutViewModel.Id == null)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                var scout = await _userManager.FindByIdAsync(scoutViewModel.Id);
+                if (scout == null)
+                {
+                    return NotFound($"Nie znaleziono harcerza.");
+                }
+
+                scout.InstructorDegree = scoutViewModel.InstructorDegree;
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            return View(scoutViewModel);
+        }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()

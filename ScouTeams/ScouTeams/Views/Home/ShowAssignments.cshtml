@@ -21,7 +21,16 @@
                 @Html.DisplayFor(modelItem => item.Name)
             </td>
             <td>
-                @Html.ActionLink("Details", "Details", new { myAssignment = item })
+                @if (item.TypeOrganization == ScouTeams.ViewModels.TypeOrganization.KwateraGlowna)
+                    @Html.ActionLink("Przejdź", "ShowKwateraGlowna", new { myAssignment = item })
+                @if (item.TypeOrganization == ScouTeams.ViewModels.TypeOrganization.Choragiew)
+                    @Html.ActionLink("Przejdź", "ShowChoragiew", new { myAssignment = item })
+                @if (item.TypeOrganization == ScouTeams.ViewModels.TypeOrganization.Hufiec)
+                    @Html.ActionLink("Przejdź", "ShowHufiec", new { myAssignment = item })
+                @if (item.TypeOrganization == ScouTeams.ViewModels.TypeOrganization.Druzyna)
+                    @Html.ActionLink("Przejdź", "ShowDruzyna", new { myAssignment = item })
+                @if (item.TypeOrganization == ScouTeams.ViewModels.TypeOrganization.Zastep)
+                    @Html.ActionLink("Przejdź", "ShowZastep", new { myAssignment = item })
             </td>
         </tr>
 }
