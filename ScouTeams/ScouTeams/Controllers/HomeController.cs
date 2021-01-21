@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -24,8 +25,8 @@ namespace ScouTeams.Controllers
         private readonly SignInManager<Scout> _signInManager;
         private readonly ILogger<HomeController> _logger;
         private readonly ScouTDBContext _context;
-        private int OrganizationId;
-        private TypeOrganization myType;
+        public const string SessionKeyType = "_Type";
+        public const string SessionKeyOrganization = "_Organization";
 
         public HomeController(SignInManager<Scout> signInManager, ILogger<HomeController> logger, UserManager<Scout> userManager, ScouTDBContext context)
         {
@@ -33,8 +34,6 @@ namespace ScouTeams.Controllers
             _signInManager = signInManager;
             _logger = logger;
             _context = context;
-            OrganizationId = 1;//-
-            myType = TypeOrganization.KwateraGlowna;
         }
 
         public async Task<IActionResult> ShowAssignments()
@@ -88,9 +87,9 @@ namespace ScouTeams.Controllers
                     }
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                
+
             }
             return View(assignments);
         }
@@ -173,49 +172,43 @@ namespace ScouTeams.Controllers
             return View();
         }
 
-        public void Details(Assignment myAssignment)
+        public IActionResult Details(int id, TypeOrganization type/*Assignment myAssignment*/)
         {
-            if (myAssignment == null)
-            {
-                RedirectToAction(nameof(Index));
-            }
-            switch (myAssignment.TypeOrganization)
+            switch (type)
             {
                 case TypeOrganization.KwateraGlowna:
-                    OrganizationId = myAssignment.OrganizationId;
-                    myType = TypeOrganization.KwateraGlowna;
-                    RedirectToAction(nameof(ShowKwateraGlowna));
-                    break;
+                    HttpContext.Session.SetString(SessionKeyType, type.ToString());
+                    HttpContext.Session.SetInt32(SessionKeyOrganization, id);
+                    return RedirectToAction(nameof(ShowKwateraGlowna));
                 case TypeOrganization.Choragiew:
-                    OrganizationId = myAssignment.OrganizationId;
-                    RedirectToAction(nameof(ShowKwateraGlowna));
-                    break;
+                    HttpContext.Session.SetString(SessionKeyType, type.ToString());
+                    HttpContext.Session.SetInt32(SessionKeyOrganization, id);
+                    return RedirectToAction(nameof(ShowKwateraGlowna));
                 case TypeOrganization.Hufiec:
-                    OrganizationId = myAssignment.OrganizationId;
-                    RedirectToAction(nameof(ShowKwateraGlowna));//, new { id = myAssignment.OrganizationId });
-                    break;
+                    HttpContext.Session.SetString(SessionKeyType, type.ToString());
+                    HttpContext.Session.SetInt32(SessionKeyOrganization, id);
+                    return RedirectToAction(nameof(ShowKwateraGlowna));
                 case TypeOrganization.Druzyna:
-                    OrganizationId = myAssignment.OrganizationId;
-                    RedirectToAction(nameof(ShowKwateraGlowna));
-                    break;
+                    HttpContext.Session.SetString(SessionKeyType, type.ToString());
+                    HttpContext.Session.SetInt32(SessionKeyOrganization, id);
+                    return RedirectToAction(nameof(ShowKwateraGlowna));
                 case TypeOrganization.Zastep:
-                    OrganizationId = myAssignment.OrganizationId;
-                    RedirectToAction(nameof(ShowKwateraGlowna));
-                    break;
+                    HttpContext.Session.SetString(SessionKeyType, type.ToString());
+                    HttpContext.Session.SetInt32(SessionKeyOrganization, id);
+                    return RedirectToAction(nameof(ShowKwateraGlowna));
                 default:
-                    RedirectToAction(nameof(Index));
-                    break;
+                    return RedirectToAction(nameof(Index));
             }
         }
 
         public async Task<IActionResult> ShowKwateraGlowna(string sortOrder, string currentFilter, string searchString, int? pageNumber)
         {
-            if (OrganizationId < 0)
+            var type = HttpContext.Session.GetString(SessionKeyType);
+            var id = HttpContext.Session.GetInt32(SessionKeyOrganization);
+            if (type == null || id == null || type != TypeOrganization.KwateraGlowna.ToString())  
             {
-                RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Index));
             }
-
-            var id = OrganizationId;
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
@@ -225,11 +218,11 @@ namespace ScouTeams.Controllers
             var tmp = await _context.KwateraGlowna.FirstOrDefaultAsync(x => x.KwateraGlownaId == id);
             if (tmp == null)
             {
-                return NotFound();
+                return NotFound($"Unable to load Kwatera Główna with this ID.");
             }
             if (user.KwateraGlowna == null || user.KwateraGlowna.KwateraGlownaId != id)
             {
-                RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Index));
             }
 
             var myScouts = new List<ScoutViewModel>();
@@ -269,7 +262,7 @@ namespace ScouTeams.Controllers
                     if (contributions.Count() - 1 > MonthDifference(contributions.First().Date)) scoutViewModel.PaidContributions = true;
                     else scoutViewModel.PaidContributions = false;
                 }
-                
+
 
                 scoutViewModel.ScoutDegree = scout.ScoutDegree;
                 scoutViewModel.InstructorDegree = scout.InstructorDegree;
@@ -314,7 +307,7 @@ namespace ScouTeams.Controllers
                     break;
             }
 
-            int pageSize = 3;
+            int pageSize = 10;
             return View(await PaginatedList<ScoutViewModel>.CreateAsync(myScouts, pageNumber ?? 1, pageSize));
         }
 
@@ -326,19 +319,44 @@ namespace ScouTeams.Controllers
 
         public async Task<IActionResult> ShowScoutsForRecruitment(string sortOrder, string currentFilter, string searchString, int? pageNumber)
         {
-            if (OrganizationId < 0)
+            var type = HttpContext.Session.GetString(SessionKeyType);
+            var id = HttpContext.Session.GetInt32(SessionKeyOrganization);
+            if (type == null || id == null)   
             {
-                RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Index));
             }
 
-            var id = OrganizationId;
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
                 return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
             }
 
-            var scouts = _userManager.Users.Where(u => u.Recruitment == true && (u.KwateraGlowna == null || u.KwateraGlowna.KwateraGlownaId != id)).ToList();
+            List<Scout> scouts = new List<Scout>();
+            if (type == TypeOrganization.KwateraGlowna.ToString())
+            scouts = _userManager.Users.Where(u => u.Recruitment == true && (u.KwateraGlowna == null || u.KwateraGlowna.KwateraGlownaId != id)).ToList();
+            else if(type == TypeOrganization.Choragiew.ToString())
+            {
+                var userInChoragiew = _context.UserChoragiews.Where(x => x.ChoragiewId == id).ToList();
+                scouts = _userManager.Users.Where(u => u.Recruitment == true && (!userInChoragiew.Exists(x => x.ScoutId == u.Id))).ToList();
+
+            }
+            else if (type == TypeOrganization.Hufiec.ToString())
+            {
+                var userInHufiec = _context.UserHufiecs.Where(x => x.HufiecId == id).ToList();
+                scouts = _userManager.Users.Where(u => u.Recruitment == true && (!userInHufiec.Exists(x => x.ScoutId == u.Id))).ToList();
+            }
+            else if (type == TypeOrganization.Druzyna.ToString())
+            {
+                var userInDruzyna = _context.UserDruzynas.Where(x => x.DruzynaId == id).ToList();
+                scouts = _userManager.Users.Where(u => u.Recruitment == true && (!userInDruzyna.Exists(x => x.ScoutId == u.Id))).ToList();
+            }
+            else if (type == TypeOrganization.Zastep.ToString())
+            {
+                var userInZastep = _context.UserZasteps.Where(x => x.ZastepId == id).ToList();
+                scouts = _userManager.Users.Where(u => u.Recruitment == true && (!userInZastep.Exists(x => x.ScoutId == u.Id))).ToList();
+            }
+
 
             var myScouts = new List<ScoutViewModel>();
             foreach (var scout in scouts)
@@ -391,7 +409,7 @@ namespace ScouTeams.Controllers
                     break;
             }
 
-            int pageSize = 3;
+            int pageSize = 20;
             return View(await PaginatedList<ScoutViewModel>.CreateAsync(myScouts, pageNumber ?? 1, pageSize));
         }
 
@@ -415,7 +433,7 @@ namespace ScouTeams.Controllers
 
                     scout.KwateraGlowna = tmp;
                     await _context.SaveChangesAsync();
-                    RedirectToAction(nameof(ShowScoutsForRecruitment));
+                    return RedirectToAction(nameof(ShowScoutsForRecruitment));
                     break;
                 case TypeOrganization.Choragiew:
 
