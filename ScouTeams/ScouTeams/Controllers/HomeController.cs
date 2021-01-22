@@ -172,7 +172,7 @@ namespace ScouTeams.Controllers
             return View();
         }
 
-        public IActionResult Details(int id, TypeOrganization type/*Assignment myAssignment*/)
+        public IActionResult Details(int id, TypeOrganization type)
         {
             switch (type)
             {
@@ -220,9 +220,10 @@ namespace ScouTeams.Controllers
             {
                 return NotFound($"Unable to load Kwatera Główna with this ID.");
             }
-            if (user.KwateraGlowna == null || user.KwateraGlowna.KwateraGlownaId != id)
+            var myFunctionInKG = await _context.FunctionInOrganizations.FirstOrDefaultAsync(f => f.ScoutId == user.Id && f.ChorągiewId == id && f.HufiecId == id && f.DruzynaId == id && f.ZastepId == id);
+            if (myFunctionInKG == null)
             {
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(ShowAssignments));
             }
 
             var myScouts = new List<ScoutViewModel>();
@@ -451,8 +452,46 @@ namespace ScouTeams.Controllers
 
                     break;
             }
-            //_context.Add(contribution);
-            //await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+
+        public async Task<IActionResult> DeleteScout(string scoutId, int OrganizationId, TypeOrganization type)
+        {
+            switch (type)
+            {
+                case TypeOrganization.KwateraGlowna:
+
+                    var scout = await _userManager.FindByIdAsync(scoutId);
+                    if (scout == null)
+                    {
+                        return NotFound($"Nie znaleziono harcerza.");
+                    }
+
+                    var tmp = await _context.KwateraGlowna.FirstOrDefaultAsync(x => x.KwateraGlownaId == OrganizationId);
+                    if (tmp == null)
+                    {
+                        return NotFound($"Nie znaleziono Kwatery Głównej.");
+                    }
+
+                    scout.KwateraGlowna = null;
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(ShowKwateraGlowna));
+                case TypeOrganization.Choragiew:
+
+                    break;
+                case TypeOrganization.Hufiec:
+
+                    break;
+                case TypeOrganization.Druzyna:
+
+                    break;
+                case TypeOrganization.Zastep:
+
+                    break;
+                default:
+
+                    break;
+            }
             return RedirectToAction(nameof(Index));
         }
 
@@ -657,6 +696,25 @@ namespace ScouTeams.Controllers
                 return RedirectToAction(nameof(Index));
             }
             return View(scoutViewModel);
+        }
+
+        public IActionResult ShowSubordinateUnits(int OrganizationId, TypeOrganization type)
+        {
+            switch (type)
+            {
+                case TypeOrganization.KwateraGlowna:
+                    return RedirectToAction("Index", "Choragiews", new { id = OrganizationId });
+                case TypeOrganization.Choragiew:
+                    return RedirectToAction("Index", "Choragiews", new { id = OrganizationId });
+                case TypeOrganization.Hufiec: 
+                    return RedirectToAction("Index", "Choragiews", new { id = OrganizationId });
+                case TypeOrganization.Druzyna:
+                    return RedirectToAction("Index", "Choragiews", new { id = OrganizationId });
+                case TypeOrganization.Zastep:
+                    return RedirectToAction("Index", "Choragiews", new { id = OrganizationId });
+                default:
+                    return RedirectToAction(nameof(ShowAssignments));
+            }
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

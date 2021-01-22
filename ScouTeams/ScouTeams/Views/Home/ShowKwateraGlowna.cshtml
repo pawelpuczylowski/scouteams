@@ -8,7 +8,8 @@
 <h1>Kwatera Główna</h1>
 
 <p>
-    <a asp-action="ShowScoutsForRecruitment">Dodaj harcerza</a>
+    <a asp-action="ShowScoutsForRecruitment">Dodaj harcerza</a> |
+    @Html.ActionLink("Pokaż Chorągwie", "ShowSubordinateUnits", new { OrganizationId = ViewData["OrganizationID"], type = ViewData["TypeOrganization"] })
 </p>
 <form asp-action="ShowKwateraGlowna" method="get">
     <div class="form-actions no-color">
@@ -46,8 +47,7 @@
             <th>
                 Stopień instruktorski
             </th>
-            @*<th></th>
-            <th></th>*@
+            <th></th>
         </tr>
     </thead>
     <tbody>
@@ -82,15 +82,10 @@
                     @Html.DisplayFor(modelItem => item.InstructorDegree) <br />
                     @Html.ActionLink("Edytuj stopień instruktorski", "EditInstructorDegree", new { scoutId = item.Id })
                 </td>
-                @*<td>
-                    @Html.ActionLink("Nadaj funkcję", "AddFunctionScout", new { scoutId = item.Id, OrganizationId = ViewData["OrganizationID"], type = ViewData["TypeOrganization"] }) |
-                    @Html.ActionLink("Odbierz funkcję", "Index", "FunctionInOrganizations", new { scoutId = item.Id, OrganizationId = ViewData["OrganizationID"], type = ViewData["TypeOrganization"] })
-
-                </td>
                 <td>
-                    @Html.ActionLink("Edytuj stopień harcerski", "EditScoutDegree", new { scoutId = item.Id }) |
-                    @Html.ActionLink("Edytuj stopień instruktorski", "EditInstructorDegree", new { scoutId = item.Id })
-                </td>*@
+                    @Html.ActionLink("Usuń", "DeleteScout", new { scoutId = item.Id, OrganizationId = ViewData["OrganizationID"], type = ViewData["TypeOrganization"] }, new { onclick = "return confirm('Na pewno usunąć z Kwatery Głównej?');" })  |
+                    @Html.ActionLink("Składki", "Index", "Contributions", new { scoutId = item.Id })
+                </td>
             </tr>
         }
     </tbody>

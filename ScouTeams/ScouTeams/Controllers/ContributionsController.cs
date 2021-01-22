@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +11,7 @@ using ScouTeams.Models;
 
 namespace ScouTeams.Controllers
 {
+    [Authorize]
     public class ContributionsController : Controller
     {
         private readonly ScouTDBContext _context;
@@ -20,9 +22,14 @@ namespace ScouTeams.Controllers
         }
 
         // GET: Contributions
-        public async Task<IActionResult> Index()
+        public IActionResult Index(string scoutId)
         {
-            return View(await _context.Contributions.ToListAsync());
+            if (string.IsNullOrEmpty(scoutId))
+            {
+                return RedirectToAction("ShowAssignments", "Home");
+            }
+            ViewData["ScoutID"] = scoutId;
+            return View(_context.Contributions.Where(c => c.ScoutId == scoutId).AsEnumerable().Reverse());
         }
 
         // GET: Contributions/Details/5
@@ -44,9 +51,15 @@ namespace ScouTeams.Controllers
         }
 
         // GET: Contributions/Create
-        public IActionResult Create()
+        public IActionResult Create(string id)
         {
-            return View();
+            if (id == null)
+            {
+                return NotFound();
+            }
+            var contribution = new Contribution();
+            contribution.ScoutId = id;
+            return View(contribution);
         }
 
         // POST: Contributions/Create

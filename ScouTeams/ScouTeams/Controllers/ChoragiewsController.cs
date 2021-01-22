@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +11,7 @@ using ScouTeams.Models;
 
 namespace ScouTeams.Controllers
 {
+    [Authorize]
     public class ChoragiewsController : Controller
     {
         private readonly ScouTDBContext _context;
@@ -20,10 +22,15 @@ namespace ScouTeams.Controllers
         }
 
         // GET: Choragiews
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int id)
         {
-            var scouTDBContext = _context.Choragiews.Include(c => c.KwateraGlowna);
-            return View(await scouTDBContext.ToListAsync());
+            if (id == 0) 
+            {
+                return RedirectToAction("ShowKwateraGlowna", "Home");
+            }
+            ViewData["ChoragiewID"] = id;
+            var scouTDBContext = await _context.Choragiews.Where(c => c.KwateraGlownaId == id).ToListAsync();
+            return View(scouTDBContext);
         }
 
         // GET: Choragiews/Details/5
@@ -46,10 +53,15 @@ namespace ScouTeams.Controllers
         }
 
         // GET: Choragiews/Create
-        public IActionResult Create()
+        public IActionResult Create(int id)
         {
-            ViewData["KwateraGlownaId"] = new SelectList(_context.KwateraGlowna, "KwateraGlownaId", "KwateraGlownaId");
-            return View();
+            if(id == 0)
+            {
+                return NotFound();
+            }
+            Choragiew choragiew = new Choragiew();
+            choragiew.KwateraGlownaId = id;
+            return View(choragiew);
         }
 
         // POST: Choragiews/Create
@@ -63,9 +75,8 @@ namespace ScouTeams.Controllers
             {
                 _context.Add(choragiew);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Index), new { id = choragiew.KwateraGlownaId });
             }
-            ViewData["KwateraGlownaId"] = new SelectList(_context.KwateraGlowna, "KwateraGlownaId", "KwateraGlownaId", choragiew.KwateraGlownaId);
             return View(choragiew);
         }
 
@@ -82,7 +93,6 @@ namespace ScouTeams.Controllers
             {
                 return NotFound();
             }
-            ViewData["KwateraGlownaId"] = new SelectList(_context.KwateraGlowna, "KwateraGlownaId", "KwateraGlownaId", choragiew.KwateraGlownaId);
             return View(choragiew);
         }
 
@@ -116,9 +126,8 @@ namespace ScouTeams.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Index), new { id = choragiew.KwateraGlownaId });
             }
-            ViewData["KwateraGlownaId"] = new SelectList(_context.KwateraGlowna, "KwateraGlownaId", "KwateraGlownaId", choragiew.KwateraGlownaId);
             return View(choragiew);
         }
 
@@ -146,10 +155,33 @@ namespace ScouTeams.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            //var choragiew = await _context.Choragiews.FindAsync(id);
+            //if (choragiew == null)
+            //{
+            //    return RedirectToAction(nameof(Index));
+            //}
+            //try
+            //{
+            //    choragiew.KwateraGlowna = null;
+            //    choragiew.KwateraGlownaId = 0;
+            //    _context.Update(choragiew);
+            //    await _context.SaveChangesAsync();
+            //}
+            //catch (DbUpdateConcurrencyException)
+            //{
+            //    if (!ChoragiewExists(choragiew.ChoragiewId))
+            //    {
+            //        return NotFound();
+            //    }
+            //    else
+            //    {
+            //        throw;
+            //    }
+            //}
             var choragiew = await _context.Choragiews.FindAsync(id);
             _context.Choragiews.Remove(choragiew);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Index), new { id = choragiew.KwateraGlownaId });
         }
 
         private bool ChoragiewExists(int id)

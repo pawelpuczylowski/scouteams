@@ -4,11 +4,11 @@
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-
-<h1>Index</h1>
-
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="ShowAssignments" asp-controller="Home">Rezygnuj</a>
+</p>
+<p>
+    <a asp-action="Create" asp-route-id="@ViewData["ScoutID"]">Dodaj</a>
 </p>
 <table class="table">
     <thead>
@@ -23,20 +23,19 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Amount)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Date)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.ContributionId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.ContributionId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.ContributionId">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Amount)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Date)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.ContributionId">Edytuj</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
