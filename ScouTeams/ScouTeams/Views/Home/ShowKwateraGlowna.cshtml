@@ -9,7 +9,8 @@
 
 <p>
     <a asp-action="ShowScoutsForRecruitment">Dodaj harcerza</a> |
-    @Html.ActionLink("Pokaż Chorągwie", "ShowSubordinateUnits", new { OrganizationId = ViewData["OrganizationID"], type = ViewData["TypeOrganization"] })
+    @Html.ActionLink("Pokaż Chorągwie", "ShowSubordinateUnits", new { OrganizationId = ViewData["OrganizationID"], type = ViewData["TypeOrganization"] }) |
+    @Html.ActionLink("Wyślij Email do wszystkich", "SendEmailToScouts", new { id = ViewData["OrganizationID"], typeOrganization = ViewData["TypeOrganization"] })
 </p>
 <form asp-action="ShowKwateraGlowna" method="get">
     <div class="form-actions no-color">
@@ -84,7 +85,8 @@
                 </td>
                 <td>
                     @Html.ActionLink("Usuń", "DeleteScout", new { scoutId = item.Id, OrganizationId = ViewData["OrganizationID"], type = ViewData["TypeOrganization"] }, new { onclick = "return confirm('Na pewno usunąć z Kwatery Głównej?');" })  |
-                    @Html.ActionLink("Składki", "Index", "Contributions", new { scoutId = item.Id })
+                    @Html.ActionLink("Składki", "Index", "Contributions", new { scoutId = item.Id }) |
+                    @Html.ActionLink("Wyślij Email", "SendEmailToScout", new { mail = item.Email })
                 </td>
             </tr>
         }

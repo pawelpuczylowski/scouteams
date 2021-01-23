@@ -14,6 +14,7 @@ using Microsoft.Extensions.Logging;
 using ScouTeams.Areas.Identity.Data;
 using ScouTeams.Data;
 using ScouTeams.Models;
+using ScouTeams.Services;
 using ScouTeams.ViewModels;
 
 namespace ScouTeams.Controllers
@@ -25,15 +26,17 @@ namespace ScouTeams.Controllers
         private readonly SignInManager<Scout> _signInManager;
         private readonly ILogger<HomeController> _logger;
         private readonly ScouTDBContext _context;
+        private IMailService _mailService;
         public const string SessionKeyType = "_Type";
         public const string SessionKeyOrganization = "_Organization";
 
-        public HomeController(SignInManager<Scout> signInManager, ILogger<HomeController> logger, UserManager<Scout> userManager, ScouTDBContext context)
+        public HomeController(SignInManager<Scout> signInManager, ILogger<HomeController> logger, UserManager<Scout> userManager, ScouTDBContext context, IMailService mailService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
             _context = context;
+            _mailService = mailService;
         }
 
         public async Task<IActionResult> ShowAssignments()
@@ -340,7 +343,6 @@ namespace ScouTeams.Controllers
             {
                 var userInChoragiew = _context.UserChoragiews.Where(x => x.ChoragiewId == id).ToList();
                 scouts = _userManager.Users.Where(u => u.Recruitment == true && (!userInChoragiew.Exists(x => x.ScoutId == u.Id))).ToList();
-
             }
             else if (type == TypeOrganization.Hufiec.ToString())
             {
@@ -715,6 +717,100 @@ namespace ScouTeams.Controllers
                 default:
                     return RedirectToAction(nameof(ShowAssignments));
             }
+        }
+
+        public IActionResult SendEmailToScout(string mail)
+        {
+            Email email = new Email();
+            email.ScoutEmail = mail;
+            return View(email);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SendEmailToScout([Bind("ScoutEmail,Subject,Message")] Email email)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await _userManager.GetUserAsync(User);
+
+                var messageTMP = email.Message + "<br /><br />Wiadomość wysłana od " + user.FirstName + ' ' + user.LastName + " (" + user.Email + ')';
+                await _mailService.SendEmailAsync(email.ScoutEmail, email.Subject, messageTMP);
+
+                var type = HttpContext.Session.GetString(SessionKeyType);
+                if (type == null)
+                {
+                    return RedirectToAction(nameof(Index));
+                }
+
+                if (type == TypeOrganization.KwateraGlowna.ToString()) return RedirectToAction(nameof(ShowKwateraGlowna));
+                else if (type == TypeOrganization.Choragiew.ToString()) return RedirectToAction(nameof(Index));
+                else if (type == TypeOrganization.Hufiec.ToString()) return RedirectToAction(nameof(Index));
+                else if (type == TypeOrganization.Druzyna.ToString()) return RedirectToAction(nameof(Index));
+                else if (type == TypeOrganization.Zastep.ToString()) return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(ShowAssignments));
+            }
+            return View(email);
+        }
+
+        public IActionResult SendEmailToScouts(int id, TypeOrganization typeOrganization)
+        {
+            Email email = new Email();
+            email.OrganizationID = id;
+            email.type = typeOrganization;
+            return View(email);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SendEmailToScouts([Bind("OrganizationID,type,ScoutEmail,Subject,Message")] Email email)
+        {
+            if (ModelState.IsValid)
+            {
+                List<Scout> scouts = new List<Scout>();
+                switch (email.type)
+                { 
+                    case TypeOrganization.KwateraGlowna:
+                        scouts = _userManager.Users.Where(u => u.KwateraGlowna != null && u.KwateraGlowna.KwateraGlownaId == email.OrganizationID).ToList();
+                        break;
+                    case TypeOrganization.Choragiew:
+
+                        break;
+                    case TypeOrganization.Hufiec:
+
+                        break;
+                    case TypeOrganization.Druzyna:
+
+                        break;
+                    case TypeOrganization.Zastep:
+
+                        break;
+                    default:
+                        break;
+                }
+
+                var user = await _userManager.GetUserAsync(User);
+                var messageTMP = email.Message + "<br /><br />Wiadomość wysłana od " + user.FirstName + ' ' + user.LastName + " (" + user.Email + ')';
+
+                foreach (var scout in scouts)
+                {
+                    await _mailService.SendEmailAsync(scout.Email, email.Subject, messageTMP);
+                }
+
+                var type = HttpContext.Session.GetString(SessionKeyType);
+                if (type == null)
+                {
+                    return RedirectToAction(nameof(Index));
+                }
+
+                if (type == TypeOrganization.KwateraGlowna.ToString()) return RedirectToAction(nameof(ShowKwateraGlowna));
+                else if (type == TypeOrganization.Choragiew.ToString()) return RedirectToAction(nameof(Index));
+                else if (type == TypeOrganization.Hufiec.ToString()) return RedirectToAction(nameof(Index));
+                else if (type == TypeOrganization.Druzyna.ToString()) return RedirectToAction(nameof(Index));
+                else if (type == TypeOrganization.Zastep.ToString()) return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(ShowAssignments));
+            }
+            return View(email);
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

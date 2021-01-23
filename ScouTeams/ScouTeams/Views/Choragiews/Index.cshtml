@@ -8,7 +8,7 @@
     <a asp-action="ShowKwateraGlowna" asp-controller="Home">Wróć</a>
 </p>
 <p>
-    <a asp-action="Create" asp-route-id="@ViewData["ChoragiewID"]">Stwórz nową chorągiew</a>
+    <a asp-action="Create" asp-route-id="@ViewData["KwateraGlownaID"]">Stwórz nową chorągiew</a>
 </p>
 <table class="table">
     <thead>
@@ -27,8 +27,9 @@
                     @Html.DisplayFor(modelItem => item.Name)
                 </td>
                 <td>
-                    <a asp-action="Edit" asp-route-id="@item.ChoragiewId">Edit</a> |
-                    <a asp-action="Delete" asp-route-id="@item.ChoragiewId">Delete</a>
+                    @Html.ActionLink("Szczegóły", "Details", "Home", new { id = item.ChoragiewId, type = ViewData["TypeOrganization"] }) |
+                    <a asp-action="Edit" asp-route-id="@item.ChoragiewId">Edytuj</a> |
+                    <a asp-action="Delete" asp-route-id="@item.ChoragiewId">Rozwiąż</a>
                 </td>
             </tr>
         }

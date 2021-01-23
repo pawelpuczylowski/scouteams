@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using ScouTeams.Areas.Identity.Data;
 using ScouTeams.Data;
+using ScouTeams.Services;
 
 namespace ScouTeams
 {
@@ -40,6 +41,9 @@ namespace ScouTeams
                 options.Password.RequireUppercase = false;
             })
                     .AddEntityFrameworkStores<ScouTDBContext>();
+
+            services.AddTransient<IMailService, SendGridMailService>();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

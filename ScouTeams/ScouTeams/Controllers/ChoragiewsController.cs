@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ScouTeams.Data;
 using ScouTeams.Models;
+using ScouTeams.ViewModels;
 
 namespace ScouTeams.Controllers
 {
@@ -28,7 +29,8 @@ namespace ScouTeams.Controllers
             {
                 return RedirectToAction("ShowKwateraGlowna", "Home");
             }
-            ViewData["ChoragiewID"] = id;
+            ViewData["KwateraGlownaID"] = id;
+            ViewData["TypeOrganization"] = TypeOrganization.Choragiew;
             var scouTDBContext = await _context.Choragiews.Where(c => c.KwateraGlownaId == id).ToListAsync();
             return View(scouTDBContext);
         }

@@ -1,0 +1,40 @@
+﻿@model ScouTeams.ViewModels.Email
+
+@{
+    ViewData["Title"] = "SendEmailToScout";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <form asp-action="SendEmailToScout">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="ScoutEmail" />
+            <div class="form-group">
+                <label asp-for="ScoutEmail" class="control-label"></label>
+                <input asp-for="ScoutEmail" class="form-control col-md-4" disabled />
+            </div>
+            <div class="form-group">
+                <label asp-for="Subject" class="control-label"></label>
+                <input asp-for="Subject" class="form-control col-md-5" />
+                <span asp-validation-for="Subject" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Message" class="control-label"></label>
+                <input asp-for="Message" class="form-control" />
+                <span asp-validation-for="Message" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Wyślij wiadomość" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="ShowAssignments">Anuluj</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

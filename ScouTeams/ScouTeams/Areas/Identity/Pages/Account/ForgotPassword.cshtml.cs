@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using ScouTeams.Areas.Identity.Data;
+using ScouTeams.Services;
 
 namespace ScouTeams.Areas.Identity.Pages.Account
 {
@@ -18,9 +19,11 @@ namespace ScouTeams.Areas.Identity.Pages.Account
     public class ForgotPasswordModel : PageModel
     {
         private readonly UserManager<Scout> _userManager;
-        private readonly IEmailSender _emailSender;
+        private IMailService _emailSender;
 
-        public ForgotPasswordModel(UserManager<Scout> userManager, IEmailSender emailSender)
+        //private readonly IEmailSender _emailSender;
+
+        public ForgotPasswordModel(UserManager<Scout> userManager, IMailService emailSender)
         {
             _userManager = userManager;
             _emailSender = emailSender;
@@ -41,7 +44,7 @@ namespace ScouTeams.Areas.Identity.Pages.Account
             if (ModelState.IsValid)
             {
                 var user = await _userManager.FindByEmailAsync(Input.Email);
-                if (user == null || !(await _userManager.IsEmailConfirmedAsync(user)))
+                if (user == null)// || !(await _userManager.IsEmailConfirmedAsync(user)))
                 {
                     // Don't reveal that the user does not exist or is not confirmed
                     return RedirectToPage("./ForgotPasswordConfirmation");
@@ -59,8 +62,8 @@ namespace ScouTeams.Areas.Identity.Pages.Account
 
                 await _emailSender.SendEmailAsync(
                     Input.Email,
-                    "Reset Password",
-                    $"Please reset your password by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                    "Resetowanie hasła",
+                    $"By zresetować hasło <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>kliknij tutaj</a>.");
 
                 return RedirectToPage("./ForgotPasswordConfirmation");
             }
