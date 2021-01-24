@@ -58,6 +58,9 @@ namespace ScouTeams.Areas.Identity.Pages.Account.Manage
             [Required]
             [Display(Name = "Werbunek")]
             public bool Recruitment { get; set; }
+
+            [Required, RegularExpression(@"^\d{11}$", ErrorMessage ="Proszę podać 11 cyfr")]
+            public string PESEL { get; set; }
         }
 
         private async Task LoadAsync(Scout user)
@@ -71,6 +74,7 @@ namespace ScouTeams.Areas.Identity.Pages.Account.Manage
                 LastName = user.LastName,
                 DateOfBirth = user.DateOfBirth,
                 Recruitment = user.Recruitment,
+                PESEL = user.PESEL
             };
         }
 
@@ -117,6 +121,10 @@ namespace ScouTeams.Areas.Identity.Pages.Account.Manage
             {
                 scout.Recruitment = Input.Recruitment;
             }
+            if (Input.PESEL != scout.PESEL)
+            {
+                scout.PESEL = Input.PESEL;
+            }
 
             var result = await _userManager.UpdateAsync(scout);
             if (result.Succeeded)
@@ -132,20 +140,5 @@ namespace ScouTeams.Areas.Identity.Pages.Account.Manage
             }
         }
 
-
-
-        //
-        /*public async Task<IActionResult> OnGet()
-        {
-
-
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
-            }
-
-            return Page();
-        }*/
     }
 }

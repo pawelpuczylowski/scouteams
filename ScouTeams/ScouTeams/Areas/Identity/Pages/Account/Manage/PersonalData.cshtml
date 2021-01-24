@@ -38,12 +38,17 @@
                 <span asp-validation-for="Input.DateOfBirth" class="text-danger"></span>
             </div>
             <div class="form-group">
+                <label asp-for="Input.PESEL"></label>
+                <input asp-for="Input.PESEL" class="form-control" />
+                <span asp-validation-for="Input.PESEL" class="text-danger"></span>
+            </div>
+            <div class="form-group">
                 <label asp-for="ScoutDegree"></label>
-                <input asp-for="ScoutDegree" class="form-control" disabled/>
+                <input asp-for="ScoutDegree" class="form-control" disabled />
             </div>
             <div class="form-group">
                 <label asp-for="InstructorDegree"></label>
-                <input asp-for="InstructorDegree" class="form-control" disabled/>
+                <input asp-for="InstructorDegree" class="form-control" disabled />
             </div>
             <button id="update-personalData-button" type="submit" class="btn btn-primary">Save</button>
         </form>

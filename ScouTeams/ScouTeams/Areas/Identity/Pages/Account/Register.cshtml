@@ -24,11 +24,22 @@
                     <span asp-validation-for="Input.LastName" class="text-danger"></span>
                 </div>
             </div>
-        </div>
-        <div class="form-group">
-            <label asp-for="Input.Email"></label>
-            <input asp-for="Input.Email" class="form-control" />
-            <span asp-validation-for="Input.Email" class="text-danger"></span>
+        </div>        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label asp-for="Input.PESEL"></label>
+                    <input asp-for="Input.PESEL" class="form-control" />
+                    <span asp-validation-for="Input.PESEL" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label asp-for="Input.DateOfBirth"></label>
+                    <input asp-for="Input.DateOfBirth" class="form-control" />
+                    <span asp-validation-for="Input.DateOfBirth" class="text-danger"></span>
+                </div>
+            </div>
         </div>
         <div class="row">
             <div class="col-md-6">
@@ -40,9 +51,9 @@
             </div>
             <div class="col-md-6">
                 <div class="form-group">
-                    <label asp-for="Input.DateOfBirth"></label>
-                    <input asp-for="Input.DateOfBirth" class="form-control" />
-                    <span asp-validation-for="Input.DateOfBirth" class="text-danger"></span>
+                    <label asp-for="Input.Email"></label>
+                    <input asp-for="Input.Email" class="form-control" />
+                    <span asp-validation-for="Input.Email" class="text-danger"></span>
                 </div>
             </div>
         </div>

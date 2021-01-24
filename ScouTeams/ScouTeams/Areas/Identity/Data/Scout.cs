@@ -30,6 +30,11 @@ namespace ScouTeams.Areas.Identity.Data
         [Display(Name = "Data urodzenia")]
         public DateTime DateOfBirth { get; set; }
 
+        [Required(AllowEmptyStrings = true)]
+        [DisplayFormat(ConvertEmptyStringToNull = false)]
+        [RegularExpression(@"^\d{11}$")]
+        public string PESEL { get; set; }
+
         public KwateraGlowna KwateraGlowna { get; set; }
         public virtual ICollection<UserChoragiew> Choragiews { get; set; }
 

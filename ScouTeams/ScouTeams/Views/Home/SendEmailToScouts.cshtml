@@ -4,13 +4,8 @@
     ViewData["Title"] = "SendEmailToScouts";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-
-<h1>SendEmailToScouts</h1>
-
-<h4>Email</h4>
-<hr />
 <div class="row">
-    <div class="col-md-4">
+    <div class="col-md-12">
         <form asp-action="SendEmailToScouts">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="OrganizationID" />
@@ -18,11 +13,11 @@
 
             <div class="form-group">
                 <label asp-for="type" class="control-label"></label>
-                <input asp-for="type" class="form-control" disabled/>
+                <input asp-for="type" class="form-control col-md-4" disabled/>
             </div>
             <div class="form-group">
                 <label asp-for="Subject" class="control-label"></label>
-                <input asp-for="Subject" class="form-control" />
+                <input asp-for="Subject" class="form-control col-md-5" />
                 <span asp-validation-for="Subject" class="text-danger"></span>
             </div>
             <div class="form-group">

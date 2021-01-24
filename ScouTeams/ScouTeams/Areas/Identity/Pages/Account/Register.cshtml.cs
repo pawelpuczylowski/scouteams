@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using ScouTeams.Areas.Identity.Data;
+using ScouTeams.Services;
 
 namespace ScouTeams.Areas.Identity.Pages.Account
 {
@@ -23,13 +24,13 @@ namespace ScouTeams.Areas.Identity.Pages.Account
         private readonly SignInManager<Scout> _signInManager;
         private readonly UserManager<Scout> _userManager;
         private readonly ILogger<RegisterModel> _logger;
-        private readonly IEmailSender _emailSender;
+        private readonly IMailService _emailSender;
 
         public RegisterModel(
             UserManager<Scout> userManager,
             SignInManager<Scout> signInManager,
             ILogger<RegisterModel> logger,
-            IEmailSender emailSender)
+            IMailService emailSender)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -71,6 +72,9 @@ namespace ScouTeams.Areas.Identity.Pages.Account
             [Display(Name = "Email")]
             public string Email { get; set; }
 
+            [Required(ErrorMessage = "Proszę podać swój PESEL"), RegularExpression(@"^\d{11}$", ErrorMessage = "Proszę podać 11 cyfr")]
+            public string PESEL { get; set; }
+
             [Required(ErrorMessage = "Proszę podać hasło do konta")]
             [StringLength(100, ErrorMessage = "{0} musi mieć co najmniej {2} i maksymalnie {1} znaków.", MinimumLength = 6)]
             [DataType(DataType.Password)]
@@ -100,7 +104,7 @@ namespace ScouTeams.Areas.Identity.Pages.Account
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
             if (ModelState.IsValid)
             {
-                var user = new Scout { UserName = Input.Email, Email = Input.Email, FirstName = Input.FirstName, LastName = Input.LastName, DateOfBirth = Input.DateOfBirth, PhoneNumber = Input.PhoneNumber, Recruitment = true };
+                var user = new Scout { UserName = Input.Email, Email = Input.Email, FirstName = Input.FirstName, LastName = Input.LastName, DateOfBirth = Input.DateOfBirth, PhoneNumber = Input.PhoneNumber, Recruitment = true, PESEL = Input.PESEL };
                 var result = await _userManager.CreateAsync(user, Input.Password);
                 if (result.Succeeded)
                 {

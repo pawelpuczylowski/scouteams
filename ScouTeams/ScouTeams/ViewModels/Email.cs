@@ -19,6 +19,7 @@ namespace ScouTeams.ViewModels
         [Display(Name = "Temat")]
         public string Subject { get; set; }
 
+        [DataType(DataType.MultilineText)]
         [Display(Name = "Treść")]
         public string Message { get; set; }
     }
