@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using ClosedXML.Excel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -186,7 +188,7 @@ namespace ScouTeams.Controllers
                 case TypeOrganization.Choragiew:
                     HttpContext.Session.SetString(SessionKeyType, type.ToString());
                     HttpContext.Session.SetInt32(SessionKeyOrganization, id);
-                    return RedirectToAction(nameof(ShowKwateraGlowna));
+                    return RedirectToAction(nameof(ShowChoragiew));
                 case TypeOrganization.Hufiec:
                     HttpContext.Session.SetString(SessionKeyType, type.ToString());
                     HttpContext.Session.SetInt32(SessionKeyOrganization, id);
@@ -276,6 +278,7 @@ namespace ScouTeams.Controllers
 
             ViewData["TypeOrganization"] = TypeOrganization.KwateraGlowna;
             ViewData["OrganizationID"] = id;
+            ViewData["OrganizationName"] = "Kwatera Główna";
 
             ViewData["CurrentSort"] = sortOrder;
             ViewData["NameSortParm"] = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
@@ -812,6 +815,177 @@ namespace ScouTeams.Controllers
             }
             return View(email);
         }
+
+        public IActionResult ExportData(int id, TypeOrganization typeOrganization, string name)
+        {
+            List<Scout> scouts = new List<Scout>();
+            switch (typeOrganization)
+            {
+                case TypeOrganization.KwateraGlowna:
+                    scouts = _userManager.Users.Where(u => u.KwateraGlowna != null && u.KwateraGlowna.KwateraGlownaId == id).ToList();
+                    break;
+                case TypeOrganization.Choragiew:
+
+                    break;
+                case TypeOrganization.Hufiec:
+
+                    break;
+                case TypeOrganization.Druzyna:
+
+                    break;
+                case TypeOrganization.Zastep:
+
+                    break;
+                default:
+                    break;
+            }
+
+            var workbook = new XLWorkbook();
+
+            IXLWorksheet worksheet = workbook.Worksheets.Add(name);
+            worksheet.Cell(1, 1).Value = "Nr";
+            worksheet.Cell(1, 2).Value = "Imię";
+            worksheet.Cell(1, 3).Value = "Nazwisko";
+            worksheet.Cell(1, 4).Value = "Data urodzenia";
+            worksheet.Cell(1, 5).Value = "PESEL";
+
+            for (int index = 1; index <= scouts.Count; index++)
+            {
+                worksheet.Cell(index + 1, 1).Value = index;
+                worksheet.Cell(index + 1, 2).Value = scouts[index - 1].FirstName;
+                worksheet.Cell(index + 1, 3).Value = scouts[index - 1].LastName;
+                worksheet.Cell(index + 1, 4).Value = scouts[index - 1].DateOfBirth;
+                worksheet.Cell(index + 1, 5).Value = scouts[index - 1].PESEL;
+            }
+
+            using (var stream = new MemoryStream())
+            {
+                workbook.SaveAs(stream);
+                var content = stream.ToArray();
+                string fileName = name + ".xlsx";
+                return File(content, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+            }
+        }
+
+
+        public async Task<IActionResult> ShowChoragiew(string sortOrder, string currentFilter, string searchString, int? pageNumber)
+        {
+            var type = HttpContext.Session.GetString(SessionKeyType);
+            var id = HttpContext.Session.GetInt32(SessionKeyOrganization);
+            if (type == null || id == null || type != TypeOrganization.Choragiew.ToString())
+            {
+                return RedirectToAction(nameof(Index));
+            }
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+            }
+
+            var tmp = await _context.Choragiews.FirstOrDefaultAsync(x => x.ChoragiewId == id);
+            if (tmp == null)
+            {
+                return NotFound($"Unable to load chorągiew with this ID.");
+            }
+            var myFunctionInChoragiew = await _context.FunctionInOrganizations.FirstOrDefaultAsync(f => f.ScoutId == user.Id && ((f.ChorągiewId == tmp.KwateraGlownaId && f.HufiecId == tmp.KwateraGlownaId && f.DruzynaId == tmp.KwateraGlownaId && f.ZastepId == tmp.KwateraGlownaId) || ((f.ChorągiewId == id && f.HufiecId == -1 && f.DruzynaId == -1 && f.ZastepId == -1))));
+            if (myFunctionInChoragiew == null)
+            {
+                return RedirectToAction(nameof(ShowAssignments));
+            }
+
+            var myScouts = new List<ScoutViewModel>();
+            var scoutsTmp = _context.UserChoragiews.Where(u => u.ChoragiewId != id).ToList();
+            List<Scout> scouts = new List<Scout>();
+            foreach (var scoutTMP in scoutsTmp)
+            {
+                var scout = await _context.Users.FirstOrDefaultAsync(u => u.Id == scoutTMP.ScoutId);
+                if (scout != null) scouts.Add(scout);
+            }
+
+            foreach (var scout in scouts)
+            {
+                var scoutViewModel = new ScoutViewModel();
+                scoutViewModel.Id = scout.Id;
+                scoutViewModel.FirstName = scout.FirstName;
+                scoutViewModel.LastName = scout.LastName;
+
+                var functions = _context.FunctionInOrganizations.Where(f => f.ScoutId == scout.Id && f.ChorągiewId == id && f.HufiecId == -1 && f.DruzynaId == -1 && f.ZastepId == -1);
+                if (functions != null)
+                {
+                    var tmpList = new List<string>();
+
+                    foreach (var function in functions)
+                    {
+                        tmpList.Add(function.FunctionName.GetType()
+                        .GetMember(function.FunctionName.ToString())
+                        .First()
+                        .GetCustomAttribute<DisplayAttribute>()
+                        .GetName());
+                    }
+
+                    scoutViewModel.Functions = string.Join(", ", tmpList);
+                }
+
+                scoutViewModel.Email = scout.Email;
+                scoutViewModel.DateOfBirth = scout.DateOfBirth;
+
+                var contributions = _context.Contributions.Where(c => c.ScoutId == scout.Id).ToList();
+                if (contributions == null || contributions.Count == 0) scoutViewModel.PaidContributions = false;
+                else
+                {
+                    if (contributions.Count() - 1 > MonthDifference(contributions.First().Date)) scoutViewModel.PaidContributions = true;
+                    else scoutViewModel.PaidContributions = false;
+                }
+
+
+                scoutViewModel.ScoutDegree = scout.ScoutDegree;
+                scoutViewModel.InstructorDegree = scout.InstructorDegree;
+                myScouts.Add(scoutViewModel);
+            }
+
+
+            ViewData["TypeOrganization"] = TypeOrganization.Choragiew;
+            ViewData["OrganizationID"] = id;
+            ViewData["OrganizationName"] = tmp.Name;
+
+            ViewData["CurrentSort"] = sortOrder;
+            ViewData["NameSortParm"] = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
+            ViewData["DateSortParm"] = sortOrder == "Date" ? "date_desc" : "Date";
+            if (searchString != null)
+            {
+                pageNumber = 1;
+            }
+            else
+            {
+                searchString = currentFilter;
+            }
+            ViewData["CurrentFilter"] = searchString;
+
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                myScouts = myScouts.Where(s => s.LastName.ToUpper().Contains(searchString.ToUpper()) || s.FirstName.ToUpper().Contains(searchString.ToUpper())).ToList();
+            }
+
+            switch (sortOrder)
+            {
+                case "name_desc":
+                    myScouts = myScouts.OrderByDescending(s => s.LastName).ToList();
+                    break;
+                case "Date":
+                    myScouts = myScouts.OrderBy(s => s.DateOfBirth).ToList();
+                    break;
+                case "date_desc":
+                    myScouts = myScouts.OrderByDescending(s => s.DateOfBirth).ToList();
+                    break;
+                default:
+                    myScouts = myScouts.OrderBy(s => s.LastName).ToList();
+                    break;
+            }
+
+            int pageSize = 10;
+            return View(await PaginatedList<ScoutViewModel>.CreateAsync(myScouts, pageNumber ?? 1, pageSize));
+        }
+
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
