@@ -2,14 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ScouTeams.Data;
 using ScouTeams.Models;
+using ScouTeams.ViewModels;
 
 namespace ScouTeams.Controllers
 {
+    [Authorize]
     public class DruzynasController : Controller
     {
         private readonly ScouTDBContext _context;
@@ -20,9 +23,16 @@ namespace ScouTeams.Controllers
         }
 
         // GET: Druzynas
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int id)
         {
-            return View(await _context.Druzynas.ToListAsync());
+            if (id == 0)
+            {
+                return RedirectToAction("ShowHufiec", "Home");
+            }
+            ViewData["OrganizationID"] = id;
+            ViewData["TypeOrganization"] = TypeOrganization.Druzyna;
+            var scouTDBContext = await _context.Druzynas.Where(c => c.HufiecId == id).ToListAsync();
+            return View(scouTDBContext);
         }
 
         // GET: Druzynas/Details/5
@@ -44,9 +54,15 @@ namespace ScouTeams.Controllers
         }
 
         // GET: Druzynas/Create
-        public IActionResult Create()
+        public IActionResult Create(int id)
         {
-            return View();
+            if (id == 0)
+            {
+                return NotFound();
+            }
+            Druzyna druzyna = new Druzyna();
+            druzyna.HufiecId = id;
+            return View(druzyna);
         }
 
         // POST: Druzynas/Create
@@ -142,7 +158,7 @@ namespace ScouTeams.Controllers
             var druzyna = await _context.Druzynas.FindAsync(id);
             _context.Druzynas.Remove(druzyna);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Index), new { id = druzyna.HufiecId });
         }
 
         private bool DruzynaExists(int id)

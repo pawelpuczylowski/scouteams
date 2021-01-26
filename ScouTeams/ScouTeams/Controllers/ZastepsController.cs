@@ -2,14 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ScouTeams.Data;
 using ScouTeams.Models;
+using ScouTeams.ViewModels;
 
 namespace ScouTeams.Controllers
 {
+    [Authorize]
     public class ZastepsController : Controller
     {
         private readonly ScouTDBContext _context;
@@ -20,10 +23,16 @@ namespace ScouTeams.Controllers
         }
 
         // GET: Zasteps
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int id)
         {
-            var scouTDBContext = _context.Zastep.Include(z => z.Druzyna);
-            return View(await scouTDBContext.ToListAsync());
+            if (id == 0)
+            {
+                return RedirectToAction("ShowDruzyna", "Home");
+            }
+            ViewData["OrganizationID"] = id;
+            ViewData["TypeOrganization"] = TypeOrganization.Zastep;
+            var scouTDBContext = await _context.Zastep.Where(c => c.DruzynaId == id).ToListAsync();
+            return View(scouTDBContext);
         }
 
         // GET: Zasteps/Details/5
@@ -46,10 +55,15 @@ namespace ScouTeams.Controllers
         }
 
         // GET: Zasteps/Create
-        public IActionResult Create()
+        public IActionResult Create(int id)
         {
-            ViewData["DruzynaId"] = new SelectList(_context.Druzynas, "HufiecId", "HufiecId");
-            return View();
+            if (id == 0)
+            {
+                return NotFound();
+            }
+            Zastep zastep = new Zastep();
+            zastep.DruzynaId = id;
+            return View(zastep);
         }
 
         // POST: Zasteps/Create
@@ -65,7 +79,6 @@ namespace ScouTeams.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["DruzynaId"] = new SelectList(_context.Druzynas, "HufiecId", "HufiecId", zastep.DruzynaId);
             return View(zastep);
         }
 
@@ -82,7 +95,6 @@ namespace ScouTeams.Controllers
             {
                 return NotFound();
             }
-            ViewData["DruzynaId"] = new SelectList(_context.Druzynas, "HufiecId", "HufiecId", zastep.DruzynaId);
             return View(zastep);
         }
 
@@ -118,7 +130,6 @@ namespace ScouTeams.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["DruzynaId"] = new SelectList(_context.Druzynas, "HufiecId", "HufiecId", zastep.DruzynaId);
             return View(zastep);
         }
 
@@ -149,7 +160,7 @@ namespace ScouTeams.Controllers
             var zastep = await _context.Zastep.FindAsync(id);
             _context.Zastep.Remove(zastep);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Index), new { id = zastep.DruzynaId });
         }
 
         private bool ZastepExists(int id)

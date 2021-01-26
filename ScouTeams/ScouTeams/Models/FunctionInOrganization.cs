@@ -8,8 +8,8 @@ namespace ScouTeams.Models
 {
     public enum FunctionName
     {
-        Brak, [Display(Name = "Podzastępowy(-wa)")] Podzastepowy, [Display(Name = "Zastępowy(-wa)")] Zastepowy,
-        [Display(Name = "Przyboczny(-na)")] Przyboczny, [Display(Name = "Drużynowy(-wa)")] Druzynowy, Kapelan, Skarbnik,
+        [Display(Name = "Brak")] Brak, [Display(Name = "Podzastępowy(-wa)")] Podzastepowy, [Display(Name = "Zastępowy(-wa)")] Zastepowy,
+        [Display(Name = "Przyboczny(-na)")] Przyboczny, [Display(Name = "Drużynowy(-wa)")] Druzynowy, [Display(Name = "Kapelan")] Kapelan, [Display(Name = "Skarbnik")] Skarbnik,
         Komendant, [Display(Name = "Zastępca(-czyni) komendanta")] ZastepcaKomendanta, [Display(Name = "Członek")] Czlonek,
         [Display(Name = "Członek Komisji Rewizyjnej")] CzlonekKomisjiRewizyjnej, 
         [Display(Name = "Zastępca(-czyni) przewodniczącego Komisji Rewizyjnej")] ZastepcaPrzewodniczacegoKomisjiRewizyjnej, 

@@ -1,11 +1,31 @@
 ﻿@model IEnumerable<ScouTeams.Models.Contribution>
+@using ScouTeams.ViewModels
 
 @{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 <p>
-    <a asp-action="ShowAssignments" asp-controller="Home">Rezygnuj</a>
+    @if (ViewData["TypeOrganization"].ToString() == TypeOrganization.KwateraGlowna.ToString())
+    {
+        <a asp-action="ShowKwateraGlowna" asp-controller="Home">Wróć</a>
+    }
+    else if (ViewData["TypeOrganization"].ToString() == TypeOrganization.Choragiew.ToString())
+    {
+        <a asp-action="ShowChoragiew" asp-controller="Home">Wróć</a>
+    }
+    else if (ViewData["TypeOrganization"].ToString() == TypeOrganization.Hufiec.ToString())
+    {
+        <a asp-action="ShowHufiec" asp-controller="Home">Wróć</a>
+    }
+    else if (ViewData["TypeOrganization"].ToString() == TypeOrganization.Druzyna.ToString())
+    {
+        <a asp-action="ShowDruzyna" asp-controller="Home">Wróć</a>
+    }
+    else if (ViewData["TypeOrganization"].ToString() == TypeOrganization.Zastep.ToString())
+    {
+        <a asp-action="ShowZastep" asp-controller="Home">Wróć</a>
+    }
 </p>
 <p>
     <a asp-action="Create" asp-route-id="@ViewData["ScoutID"]">Dodaj</a>

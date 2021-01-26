@@ -4,18 +4,15 @@
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-
-<h1>Index</h1>
-
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="ShowHufiec" asp-controller="Home">Wróć</a>
+</p>
+<p>
+    <a asp-action="Create" asp-route-id="@ViewData["OrganizationID"]">Stwórz nową drużynę</a>
 </p>
 <table class="table">
     <thead>
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.DruzynaId)
-            </th>
             <th>
                 @Html.DisplayNameFor(model => model.Name)
             </th>
@@ -23,20 +20,18 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.DruzynaId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.HufiecId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.HufiecId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.HufiecId">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.ActionLink("Szczegóły", "Details", "Home", new { id = item.DruzynaId, type = ViewData["TypeOrganization"] }) |
+                    <a asp-action="Edit" asp-route-id="@item.DruzynaId">Edytuj</a> |
+                    <a asp-action="Delete" asp-route-id="@item.DruzynaId">Rozwiąż</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>

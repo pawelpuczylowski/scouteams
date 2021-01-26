@@ -179,28 +179,20 @@ namespace ScouTeams.Controllers
 
         public IActionResult Details(int id, TypeOrganization type)
         {
+            HttpContext.Session.SetString(SessionKeyType, type.ToString());
+            HttpContext.Session.SetInt32(SessionKeyOrganization, id);
             switch (type)
             {
                 case TypeOrganization.KwateraGlowna:
-                    HttpContext.Session.SetString(SessionKeyType, type.ToString());
-                    HttpContext.Session.SetInt32(SessionKeyOrganization, id);
                     return RedirectToAction(nameof(ShowKwateraGlowna));
                 case TypeOrganization.Choragiew:
-                    HttpContext.Session.SetString(SessionKeyType, type.ToString());
-                    HttpContext.Session.SetInt32(SessionKeyOrganization, id);
                     return RedirectToAction(nameof(ShowChoragiew));
                 case TypeOrganization.Hufiec:
-                    HttpContext.Session.SetString(SessionKeyType, type.ToString());
-                    HttpContext.Session.SetInt32(SessionKeyOrganization, id);
-                    return RedirectToAction(nameof(ShowKwateraGlowna));
+                    return RedirectToAction(nameof(ShowHufiec));
                 case TypeOrganization.Druzyna:
-                    HttpContext.Session.SetString(SessionKeyType, type.ToString());
-                    HttpContext.Session.SetInt32(SessionKeyOrganization, id);
-                    return RedirectToAction(nameof(ShowKwateraGlowna));
+                    return RedirectToAction(nameof(ShowDruzyna));
                 case TypeOrganization.Zastep:
-                    HttpContext.Session.SetString(SessionKeyType, type.ToString());
-                    HttpContext.Session.SetInt32(SessionKeyOrganization, id);
-                    return RedirectToAction(nameof(ShowKwateraGlowna));
+                    return RedirectToAction(nameof(ShowZastep));
                 default:
                     return RedirectToAction(nameof(Index));
             }
@@ -210,7 +202,7 @@ namespace ScouTeams.Controllers
         {
             var type = HttpContext.Session.GetString(SessionKeyType);
             var id = HttpContext.Session.GetInt32(SessionKeyOrganization);
-            if (type == null || id == null || type != TypeOrganization.KwateraGlowna.ToString())  
+            if (type == null || id == null || type != TypeOrganization.KwateraGlowna.ToString())
             {
                 return RedirectToAction(nameof(Index));
             }
@@ -328,7 +320,7 @@ namespace ScouTeams.Controllers
         {
             var type = HttpContext.Session.GetString(SessionKeyType);
             var id = HttpContext.Session.GetInt32(SessionKeyOrganization);
-            if (type == null || id == null)   
+            if (type == null || id == null)
             {
                 return RedirectToAction(nameof(Index));
             }
@@ -339,28 +331,36 @@ namespace ScouTeams.Controllers
                 return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
             }
 
+            ViewData["TypeOrganization"] = "";
             List<Scout> scouts = new List<Scout>();
             if (type == TypeOrganization.KwateraGlowna.ToString())
-            scouts = _userManager.Users.Where(u => u.Recruitment == true && (u.KwateraGlowna == null || u.KwateraGlowna.KwateraGlownaId != id)).ToList();
-            else if(type == TypeOrganization.Choragiew.ToString())
             {
+                ViewData["TypeOrganization"] = TypeOrganization.KwateraGlowna;
+                scouts = _userManager.Users.Where(u => u.Recruitment == true && (u.KwateraGlowna == null || u.KwateraGlowna.KwateraGlownaId != id)).ToList();
+            }
+            else if (type == TypeOrganization.Choragiew.ToString())
+            {
+                ViewData["TypeOrganization"] = TypeOrganization.Choragiew;
                 var userInChoragiew = _context.UserChoragiews.Where(x => x.ChoragiewId == id).ToList();
-                scouts = _userManager.Users.Where(u => u.Recruitment == true && (!userInChoragiew.Exists(x => x.ScoutId == u.Id))).ToList();
+                scouts = _userManager.Users.ToList().Where(u => u.Recruitment == true && (!userInChoragiew.Exists(x => x.ScoutId == u.Id))).ToList();
             }
             else if (type == TypeOrganization.Hufiec.ToString())
             {
+                ViewData["TypeOrganization"] = TypeOrganization.Hufiec;
                 var userInHufiec = _context.UserHufiecs.Where(x => x.HufiecId == id).ToList();
-                scouts = _userManager.Users.Where(u => u.Recruitment == true && (!userInHufiec.Exists(x => x.ScoutId == u.Id))).ToList();
+                scouts = _userManager.Users.ToList().Where(u => u.Recruitment == true && (!userInHufiec.Exists(x => x.ScoutId == u.Id))).ToList();
             }
             else if (type == TypeOrganization.Druzyna.ToString())
             {
+                ViewData["TypeOrganization"] = TypeOrganization.Druzyna;
                 var userInDruzyna = _context.UserDruzynas.Where(x => x.DruzynaId == id).ToList();
-                scouts = _userManager.Users.Where(u => u.Recruitment == true && (!userInDruzyna.Exists(x => x.ScoutId == u.Id))).ToList();
+                scouts = _userManager.Users.ToList().Where(u => u.Recruitment == true && (!userInDruzyna.Exists(x => x.ScoutId == u.Id))).ToList();
             }
             else if (type == TypeOrganization.Zastep.ToString())
             {
+                ViewData["TypeOrganization"] = TypeOrganization.Zastep;
                 var userInZastep = _context.UserZasteps.Where(x => x.ZastepId == id).ToList();
-                scouts = _userManager.Users.Where(u => u.Recruitment == true && (!userInZastep.Exists(x => x.ScoutId == u.Id))).ToList();
+                scouts = _userManager.Users.ToList().Where(u => u.Recruitment == true && (!userInZastep.Exists(x => x.ScoutId == u.Id))).ToList();
             }
 
 
@@ -378,7 +378,6 @@ namespace ScouTeams.Controllers
                 myScouts.Add(scoutViewModel);
             }
 
-            ViewData["TypeOrganization"] = TypeOrganization.KwateraGlowna;
             ViewData["OrganizationID"] = id;
 
             ViewData["CurrentSort"] = sortOrder;
@@ -421,57 +420,91 @@ namespace ScouTeams.Controllers
 
         public async Task<IActionResult> AddScout(string scoutId, int OrganizationId, TypeOrganization type)
         {
+            var scout = await _userManager.FindByIdAsync(scoutId);
+            if (scout == null)
+            {
+                return NotFound($"Nie znaleziono harcerza.");
+            }
             switch (type)
             {
                 case TypeOrganization.KwateraGlowna:
-
-                    var scout = await _userManager.FindByIdAsync(scoutId);
-                    if (scout == null)
-                    {
-                        return NotFound($"Nie znaleziono harcerza.");
-                    }
-
-                    var tmp = await _context.KwateraGlowna.FirstOrDefaultAsync(x => x.KwateraGlownaId == OrganizationId);
-                    if (tmp == null)
+                    var tmpKG = await _context.KwateraGlowna.FirstOrDefaultAsync(x => x.KwateraGlownaId == OrganizationId);
+                    if (tmpKG == null)
                     {
                         return NotFound($"Nie znaleziono Kwatery Głównej.");
                     }
 
-                    scout.KwateraGlowna = tmp;
+                    scout.KwateraGlowna = tmpKG;
                     await _context.SaveChangesAsync();
                     return RedirectToAction(nameof(ShowScoutsForRecruitment));
-                    break;
+
                 case TypeOrganization.Choragiew:
+                    var tmpC = await _context.Choragiews.FirstOrDefaultAsync(x => x.ChoragiewId == OrganizationId);
+                    if (tmpC == null)
+                    {
+                        return NotFound($"Nie znaleziono tej chorągwi.");
+                    }
+                    UserChoragiew userChoragiew = new UserChoragiew();
+                    userChoragiew.ChoragiewId = OrganizationId;
+                    userChoragiew.ScoutId = scoutId;
+                    _context.Add(userChoragiew);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(ShowScoutsForRecruitment));
 
-                    break;
                 case TypeOrganization.Hufiec:
+                    var tmpH = await _context.Hufiecs.FirstOrDefaultAsync(x => x.HufiecId == OrganizationId);
+                    if (tmpH == null)
+                    {
+                        return NotFound($"Nie znaleziono tego hufca.");
+                    }
+                    UserHufiec userHufiec = new UserHufiec();
+                    userHufiec.HufiecId = OrganizationId;
+                    userHufiec.ScoutId = scoutId;
+                    _context.Add(userHufiec);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(ShowScoutsForRecruitment));
 
-                    break;
                 case TypeOrganization.Druzyna:
+                    var tmpD = await _context.Druzynas.FirstOrDefaultAsync(x => x.DruzynaId == OrganizationId);
+                    if (tmpD == null)
+                    {
+                        return NotFound($"Nie znaleziono tej drużyny.");
+                    }
+                    UserDruzyna userDruzyna = new UserDruzyna();
+                    userDruzyna.DruzynaId= OrganizationId;
+                    userDruzyna.ScoutId = scoutId;
+                    _context.Add(userDruzyna);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(ShowScoutsForRecruitment));
 
-                    break;
                 case TypeOrganization.Zastep:
+                    var tmpZ = await _context.Zastep.FirstOrDefaultAsync(x => x.ZastepId == OrganizationId);
+                    if (tmpZ == null)
+                    {
+                        return NotFound($"Nie znaleziono tego zastępu.");
+                    }
+                    UserZastep userZastep = new UserZastep();
+                    userZastep.ZastepId = OrganizationId;
+                    userZastep.ScoutId = scoutId;
+                    _context.Add(userZastep);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(ShowScoutsForRecruitment));
 
-                    break;
                 default:
-
-                    break;
+                    return RedirectToAction(nameof(Index));
             }
-            return RedirectToAction(nameof(Index));
         }
 
         public async Task<IActionResult> DeleteScout(string scoutId, int OrganizationId, TypeOrganization type)
         {
+            var scout = await _userManager.FindByIdAsync(scoutId);
+            if (scout == null)
+            {
+                return NotFound($"Nie znaleziono harcerza.");
+            }
             switch (type)
             {
                 case TypeOrganization.KwateraGlowna:
-
-                    var scout = await _userManager.FindByIdAsync(scoutId);
-                    if (scout == null)
-                    {
-                        return NotFound($"Nie znaleziono harcerza.");
-                    }
-
                     var tmp = await _context.KwateraGlowna.FirstOrDefaultAsync(x => x.KwateraGlownaId == OrganizationId);
                     if (tmp == null)
                     {
@@ -481,87 +514,167 @@ namespace ScouTeams.Controllers
                     scout.KwateraGlowna = null;
                     await _context.SaveChangesAsync();
                     return RedirectToAction(nameof(ShowKwateraGlowna));
+
                 case TypeOrganization.Choragiew:
+                    var tmpC = await _context.Choragiews.FirstOrDefaultAsync(x => x.ChoragiewId == OrganizationId);
+                    if (tmpC == null)
+                    {
+                        return NotFound($"Nie znaleziono tej chorągwi.");
+                    }
+                    var userChoragiew = await _context.UserChoragiews.FirstOrDefaultAsync(u => u.ChoragiewId == OrganizationId && u.ScoutId == scoutId);
+                    if (userChoragiew != null)
+                    {
+                        _context.UserChoragiews.Remove(userChoragiew);
+                        await _context.SaveChangesAsync();
+                    }
+                    return RedirectToAction(nameof(ShowChoragiew));
 
-                    break;
                 case TypeOrganization.Hufiec:
+                    var tmpH = await _context.Hufiecs.FirstOrDefaultAsync(x => x.HufiecId == OrganizationId);
+                    if (tmpH == null)
+                    {
+                        return NotFound($"Nie znaleziono tego hufca.");
+                    }
+                    var userHufiec = await _context.UserHufiecs.FirstOrDefaultAsync(u => u.HufiecId == OrganizationId && u.ScoutId == scoutId);
+                    if (userHufiec != null)
+                    {
+                        _context.UserHufiecs.Remove(userHufiec);
+                        await _context.SaveChangesAsync();
+                    }
+                    return RedirectToAction(nameof(ShowHufiec));
 
-                    break;
                 case TypeOrganization.Druzyna:
+                    var tmpD = await _context.Druzynas.FirstOrDefaultAsync(x => x.DruzynaId == OrganizationId);
+                    if (tmpD == null)
+                    {
+                        return NotFound($"Nie znaleziono tej drużyny.");
+                    }
+                    var userDruzyna = await _context.UserDruzynas.FirstOrDefaultAsync(u => u.DruzynaId == OrganizationId && u.ScoutId == scoutId);
+                    if (userDruzyna != null)
+                    {
+                        _context.UserDruzynas.Remove(userDruzyna);
+                        await _context.SaveChangesAsync();
+                    }
+                    return RedirectToAction(nameof(ShowDruzyna));
 
-                    break;
                 case TypeOrganization.Zastep:
-
-                    break;
+                    var tmpZ = await _context.Zastep.FirstOrDefaultAsync(x => x.ZastepId == OrganizationId);
+                    if (tmpZ == null)
+                    {
+                        return NotFound($"Nie znaleziono tego zastępu.");
+                    }
+                    var userZastep = await _context.UserZasteps.FirstOrDefaultAsync(u => u.ZastepId == OrganizationId && u.ScoutId == scoutId);
+                    if (userZastep != null)
+                    {
+                        _context.UserZasteps.Remove(userZastep);
+                        await _context.SaveChangesAsync();
+                    }
+                    return RedirectToAction(nameof(ShowZastep));
                 default:
-
-                    break;
+                    return RedirectToAction(nameof(Index));
             }
-            return RedirectToAction(nameof(Index));
         }
 
         public async Task<IActionResult> AddFunctionScout(string scoutId, int OrganizationId, TypeOrganization type)
         {
+            var scout = await _userManager.FindByIdAsync(scoutId);
+            if (scout == null)
+            {
+                return NotFound($"Nie znaleziono harcerza.");
+            }
             switch (type)
             {
                 case TypeOrganization.KwateraGlowna:
-
-                    var scout = await _userManager.FindByIdAsync(scoutId);
-                    if (scout == null)
-                    {
-                        return NotFound($"Nie znaleziono harcerza.");
-                    }
-
-                    var tmp = await _context.KwateraGlowna.FirstOrDefaultAsync(x => x.KwateraGlownaId == OrganizationId);
-                    if (tmp == null)
+                    var tmpKG = await _context.KwateraGlowna.FirstOrDefaultAsync(x => x.KwateraGlownaId == OrganizationId);
+                    if (tmpKG == null)
                     {
                         return NotFound($"Nie znaleziono Kwatery Głównej.");
                     }
 
-                    var scoutViewModel = new ScoutViewModel();
-                    scoutViewModel.Id = scout.Id;
-                    scoutViewModel.FirstName = scout.FirstName;
-                    scoutViewModel.LastName = scout.LastName;
+                    var scoutViewModelKG = new ScoutViewModel();
+                    scoutViewModelKG.Id = scout.Id;
+                    scoutViewModelKG.FirstName = scout.FirstName;
+                    scoutViewModelKG.LastName = scout.LastName;
+                    scoutViewModelKG.ThisOrganizationId = OrganizationId;
+                    scoutViewModelKG.ThisTypeOrganization = type;
+                    scoutViewModelKG.ScoutDegree = scout.ScoutDegree;
+                    scoutViewModelKG.InstructorDegree = scout.InstructorDegree;
 
-                    var functions = _context.FunctionInOrganizations.Where(f => f.ScoutId == scout.Id && f.ChorągiewId == tmp.KwateraGlownaId && f.HufiecId == tmp.KwateraGlownaId && f.DruzynaId == tmp.KwateraGlownaId && f.ZastepId == tmp.KwateraGlownaId);
-                    if (functions != null)
+                    return View(scoutViewModelKG);
+
+                case TypeOrganization.Choragiew:
+                    var tmpC = await _context.Choragiews.FirstOrDefaultAsync(x => x.ChoragiewId == OrganizationId);
+                    if (tmpC == null)
                     {
-                        var tmpList = new List<string>();
-
-                        foreach (var function in functions)
-                        {
-                            tmpList.Add(function.FunctionName.GetType()
-                            .GetMember(function.FunctionName.ToString())
-                            .First()
-                            .GetCustomAttribute<DisplayAttribute>()
-                            .GetName());
-                        }
-
-                        scoutViewModel.Functions = string.Join(", ", tmpList);
+                        return NotFound($"Nie znaleziono tej chorągwi.");
                     }
 
-                    scoutViewModel.ThisOrganizationId = OrganizationId;
-                    scoutViewModel.ThisTypeOrganization = type;
+                    var scoutViewModelC = new ScoutViewModel();
+                    scoutViewModelC.Id = scout.Id;
+                    scoutViewModelC.FirstName = scout.FirstName;
+                    scoutViewModelC.LastName = scout.LastName;
+                    scoutViewModelC.ThisOrganizationId = OrganizationId;
+                    scoutViewModelC.ThisTypeOrganization = type;
+                    scoutViewModelC.ScoutDegree = scout.ScoutDegree;
+                    scoutViewModelC.InstructorDegree = scout.InstructorDegree;
 
-                    scoutViewModel.ScoutDegree = scout.ScoutDegree;
-                    scoutViewModel.InstructorDegree = scout.InstructorDegree;
+                    return View(scoutViewModelC);
 
-                    return View(scoutViewModel);
-                    break;
-                case TypeOrganization.Choragiew:
-
-                    break;
                 case TypeOrganization.Hufiec:
+                    var tmpH = await _context.Hufiecs.FirstOrDefaultAsync(x => x.HufiecId == OrganizationId);
+                    if (tmpH == null)
+                    {
+                        return NotFound($"Nie znaleziono tego hufca.");
+                    }
 
-                    break;
+                    var scoutViewModelH = new ScoutViewModel();
+                    scoutViewModelH.Id = scout.Id;
+                    scoutViewModelH.FirstName = scout.FirstName;
+                    scoutViewModelH.LastName = scout.LastName;
+                    scoutViewModelH.ThisOrganizationId = OrganizationId;
+                    scoutViewModelH.ThisTypeOrganization = type;
+                    scoutViewModelH.ScoutDegree = scout.ScoutDegree;
+                    scoutViewModelH.InstructorDegree = scout.InstructorDegree;
+
+                    return View(scoutViewModelH);
+
                 case TypeOrganization.Druzyna:
+                    var tmpD = await _context.Druzynas.FirstOrDefaultAsync(x => x.DruzynaId == OrganizationId);
+                    if (tmpD == null)
+                    {
+                        return NotFound($"Nie znaleziono tej drużyny.");
+                    }
 
-                    break;
+                    var scoutViewModelD = new ScoutViewModel();
+                    scoutViewModelD.Id = scout.Id;
+                    scoutViewModelD.FirstName = scout.FirstName;
+                    scoutViewModelD.LastName = scout.LastName;
+                    scoutViewModelD.ThisOrganizationId = OrganizationId;
+                    scoutViewModelD.ThisTypeOrganization = type;
+                    scoutViewModelD.ScoutDegree = scout.ScoutDegree;
+                    scoutViewModelD.InstructorDegree = scout.InstructorDegree;
+
+                    return View(scoutViewModelD);
+
                 case TypeOrganization.Zastep:
+                    var tmpZ = await _context.Zastep.FirstOrDefaultAsync(x => x.ZastepId == OrganizationId);
+                    if (tmpZ == null)
+                    {
+                        return NotFound($"Nie znaleziono tego zastępu.");
+                    }
 
-                    break;
+                    var scoutViewModelZ = new ScoutViewModel();
+                    scoutViewModelZ.Id = scout.Id;
+                    scoutViewModelZ.FirstName = scout.FirstName;
+                    scoutViewModelZ.LastName = scout.LastName;
+                    scoutViewModelZ.ThisOrganizationId = OrganizationId;
+                    scoutViewModelZ.ThisTypeOrganization = type;
+                    scoutViewModelZ.ScoutDegree = scout.ScoutDegree;
+                    scoutViewModelZ.InstructorDegree = scout.InstructorDegree;
+
+                    return View(scoutViewModelZ);
+
                 default:
-
                     break;
             }
             return RedirectToAction(nameof(Index));
@@ -571,47 +684,136 @@ namespace ScouTeams.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddFunctionScout(ScoutViewModel scoutViewModel)
         {
+            if (scoutViewModel.Id == null)
+            {
+                return NotFound();
+            }
+            var scout = await _userManager.FindByIdAsync(scoutViewModel.Id);
+            if (scout == null)
+            {
+                return NotFound($"Nie znaleziono harcerza.");
+            }
             switch (scoutViewModel.ThisTypeOrganization)
             {
                 case TypeOrganization.KwateraGlowna:
-
-                    if (scoutViewModel.Id == null)
-                    {
-                        return NotFound();
-                    }
-
                     if (ModelState.IsValid)
                     {
-                        var scout = await _userManager.FindByIdAsync(scoutViewModel.Id);
-                        if (scout == null)
+                        var functions = _context.FunctionInOrganizations.Where(f => f.ScoutId == scout.Id && f.ChorągiewId == scoutViewModel.ThisOrganizationId && f.HufiecId == scoutViewModel.ThisOrganizationId && f.DruzynaId == scoutViewModel.ThisOrganizationId && f.ZastepId == scoutViewModel.ThisOrganizationId).ToList();
+                        if (functions == null || !functions.Exists(x => x.FunctionName == scoutViewModel.functionName)) 
                         {
-                            return NotFound($"Nie znaleziono harcerza.");
+                            if(scoutViewModel.functionName != FunctionName.Brak)
+                            {
+                                FunctionInOrganization functionInOrganization = new FunctionInOrganization();
+                                functionInOrganization.ScoutId = scout.Id;
+                                functionInOrganization.FunctionName = scoutViewModel.functionName;
+
+                                functionInOrganization.ChorągiewId = scoutViewModel.ThisOrganizationId;
+                                functionInOrganization.HufiecId = scoutViewModel.ThisOrganizationId;
+                                functionInOrganization.DruzynaId = scoutViewModel.ThisOrganizationId;
+                                functionInOrganization.ZastepId = scoutViewModel.ThisOrganizationId;
+
+                                _context.Add(functionInOrganization);
+                                await _context.SaveChangesAsync();
+                            }
+                            return RedirectToAction(nameof(ShowKwateraGlowna));
                         }
-                        FunctionInOrganization functionInOrganization = new FunctionInOrganization();
-                        functionInOrganization.ScoutId = scout.Id;
-                        functionInOrganization.FunctionName = scoutViewModel.functionName;
-
-                        functionInOrganization.ChorągiewId = scoutViewModel.ThisOrganizationId;
-                        functionInOrganization.HufiecId = scoutViewModel.ThisOrganizationId;
-                        functionInOrganization.DruzynaId = scoutViewModel.ThisOrganizationId;
-                        functionInOrganization.ZastepId = scoutViewModel.ThisOrganizationId;
-
-                        _context.Add(functionInOrganization);
-                        await _context.SaveChangesAsync();
-                        return RedirectToAction(nameof(Index));
                     }
                     break;
                 case TypeOrganization.Choragiew:
+                    if (ModelState.IsValid)
+                    {
+                        var functions = _context.FunctionInOrganizations.Where(f => f.ScoutId == scout.Id && f.ChorągiewId == scoutViewModel.ThisOrganizationId && f.HufiecId == -1 && f.DruzynaId == -1 && f.ZastepId == -1).ToList();
+                        if (functions == null || !functions.Exists(x => x.FunctionName == scoutViewModel.functionName))
+                        {
+                            if (scoutViewModel.functionName != FunctionName.Brak)
+                            {
+                                FunctionInOrganization functionInOrganization = new FunctionInOrganization();
+                                functionInOrganization.ScoutId = scout.Id;
+                                functionInOrganization.FunctionName = scoutViewModel.functionName;
 
+                                functionInOrganization.ChorągiewId = scoutViewModel.ThisOrganizationId;
+                                functionInOrganization.HufiecId = scoutViewModel.ThisOrganizationId;
+                                functionInOrganization.DruzynaId = scoutViewModel.ThisOrganizationId;
+                                functionInOrganization.ZastepId = scoutViewModel.ThisOrganizationId;
+
+                                _context.Add(functionInOrganization);
+                                await _context.SaveChangesAsync();
+                            }
+                            return RedirectToAction(nameof(ShowChoragiew));
+                        }
+                    }
                     break;
                 case TypeOrganization.Hufiec:
+                    if (ModelState.IsValid)
+                    {
+                        var functions = _context.FunctionInOrganizations.Where(f => f.ScoutId == scout.Id && f.ChorągiewId == -1 && f.HufiecId == scoutViewModel.ThisOrganizationId && f.DruzynaId == -1 && f.ZastepId == -1).ToList();
+                        if (functions == null || !functions.Exists(x => x.FunctionName == scoutViewModel.functionName))
+                        {
+                            if (scoutViewModel.functionName != FunctionName.Brak)
+                            {
+                                FunctionInOrganization functionInOrganization = new FunctionInOrganization();
+                                functionInOrganization.ScoutId = scout.Id;
+                                functionInOrganization.FunctionName = scoutViewModel.functionName;
 
+                                functionInOrganization.ChorągiewId = scoutViewModel.ThisOrganizationId;
+                                functionInOrganization.HufiecId = scoutViewModel.ThisOrganizationId;
+                                functionInOrganization.DruzynaId = scoutViewModel.ThisOrganizationId;
+                                functionInOrganization.ZastepId = scoutViewModel.ThisOrganizationId;
+
+                                _context.Add(functionInOrganization);
+                                await _context.SaveChangesAsync();
+                            }
+                            return RedirectToAction(nameof(ShowHufiec));
+                        }
+                    }
                     break;
                 case TypeOrganization.Druzyna:
+                    if (ModelState.IsValid)
+                    {
+                        var functions = _context.FunctionInOrganizations.Where(f => f.ScoutId == scout.Id && f.ChorągiewId == -1 && f.HufiecId == -1 && f.DruzynaId == scoutViewModel.ThisOrganizationId && f.ZastepId == -1).ToList();
+                        if (functions == null || !functions.Exists(x => x.FunctionName == scoutViewModel.functionName))
+                        {
+                            if (scoutViewModel.functionName != FunctionName.Brak)
+                            {
+                                FunctionInOrganization functionInOrganization = new FunctionInOrganization();
+                                functionInOrganization.ScoutId = scout.Id;
+                                functionInOrganization.FunctionName = scoutViewModel.functionName;
 
+                                functionInOrganization.ChorągiewId = scoutViewModel.ThisOrganizationId;
+                                functionInOrganization.HufiecId = scoutViewModel.ThisOrganizationId;
+                                functionInOrganization.DruzynaId = scoutViewModel.ThisOrganizationId;
+                                functionInOrganization.ZastepId = scoutViewModel.ThisOrganizationId;
+
+                                _context.Add(functionInOrganization);
+                                await _context.SaveChangesAsync();
+                            }
+                            return RedirectToAction(nameof(ShowDruzyna));
+                        }
+                    }
                     break;
                 case TypeOrganization.Zastep:
+                    if (ModelState.IsValid)
+                    {
+                        var functions = _context.FunctionInOrganizations.Where(f => f.ScoutId == scout.Id && f.ChorągiewId == -1 && f.HufiecId == -1 && f.DruzynaId == -1 && f.ZastepId == scoutViewModel.ThisOrganizationId).ToList();
+                        if (functions == null || !functions.Exists(x => x.FunctionName == scoutViewModel.functionName))
+                        {
+                            if (scoutViewModel.functionName != FunctionName.Brak)
+                            {
+                                FunctionInOrganization functionInOrganization = new FunctionInOrganization();
+                                functionInOrganization.ScoutId = scout.Id;
+                                functionInOrganization.FunctionName = scoutViewModel.functionName;
 
+                                functionInOrganization.ChorągiewId = scoutViewModel.ThisOrganizationId;
+                                functionInOrganization.HufiecId = scoutViewModel.ThisOrganizationId;
+                                functionInOrganization.DruzynaId = scoutViewModel.ThisOrganizationId;
+                                functionInOrganization.ZastepId = scoutViewModel.ThisOrganizationId;
+
+                                _context.Add(functionInOrganization);
+                                await _context.SaveChangesAsync();
+                            }
+                            return RedirectToAction(nameof(ShowZastep));
+                        }
+                    }
                     break;
                 default:
                     return NotFound();
@@ -656,7 +858,19 @@ namespace ScouTeams.Controllers
 
                 scout.ScoutDegree = scoutViewModel.ScoutDegree;
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+
+                var type = HttpContext.Session.GetString(SessionKeyType);
+                if (type == null)
+                {
+                    return RedirectToAction(nameof(Index));
+                }
+
+                if (type == TypeOrganization.KwateraGlowna.ToString()) return RedirectToAction(nameof(ShowKwateraGlowna));
+                else if (type == TypeOrganization.Choragiew.ToString()) return RedirectToAction(nameof(ShowChoragiew));
+                else if (type == TypeOrganization.Hufiec.ToString()) return RedirectToAction(nameof(ShowHufiec));
+                else if (type == TypeOrganization.Druzyna.ToString()) return RedirectToAction(nameof(ShowDruzyna));
+                else if (type == TypeOrganization.Zastep.ToString()) return RedirectToAction(nameof(ShowZastep));
+                return RedirectToAction(nameof(ShowAssignments));
             }
             return View(scoutViewModel);
         }
@@ -698,7 +912,18 @@ namespace ScouTeams.Controllers
 
                 scout.InstructorDegree = scoutViewModel.InstructorDegree;
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+
+                var type = HttpContext.Session.GetString(SessionKeyType);
+                if (type == null)
+                {
+                    return RedirectToAction(nameof(Index));
+                }
+
+                if (type == TypeOrganization.KwateraGlowna.ToString()) return RedirectToAction(nameof(ShowKwateraGlowna));
+                else if (type == TypeOrganization.Choragiew.ToString()) return RedirectToAction(nameof(ShowChoragiew));
+                else if (type == TypeOrganization.Hufiec.ToString()) return RedirectToAction(nameof(ShowHufiec));
+                else if (type == TypeOrganization.Druzyna.ToString()) return RedirectToAction(nameof(ShowDruzyna));
+                else if (type == TypeOrganization.Zastep.ToString()) return RedirectToAction(nameof(ShowZastep));
             }
             return View(scoutViewModel);
         }
@@ -710,13 +935,11 @@ namespace ScouTeams.Controllers
                 case TypeOrganization.KwateraGlowna:
                     return RedirectToAction("Index", "Choragiews", new { id = OrganizationId });
                 case TypeOrganization.Choragiew:
-                    return RedirectToAction("Index", "Choragiews", new { id = OrganizationId });
-                case TypeOrganization.Hufiec: 
-                    return RedirectToAction("Index", "Choragiews", new { id = OrganizationId });
+                    return RedirectToAction("Index", "Hufiecs", new { id = OrganizationId });
+                case TypeOrganization.Hufiec:
+                    return RedirectToAction("Index", "Druzynas", new { id = OrganizationId });
                 case TypeOrganization.Druzyna:
-                    return RedirectToAction("Index", "Choragiews", new { id = OrganizationId });
-                case TypeOrganization.Zastep:
-                    return RedirectToAction("Index", "Choragiews", new { id = OrganizationId });
+                    return RedirectToAction("Index", "Zasteps", new { id = OrganizationId });
                 default:
                     return RedirectToAction(nameof(ShowAssignments));
             }
@@ -747,10 +970,10 @@ namespace ScouTeams.Controllers
                 }
 
                 if (type == TypeOrganization.KwateraGlowna.ToString()) return RedirectToAction(nameof(ShowKwateraGlowna));
-                else if (type == TypeOrganization.Choragiew.ToString()) return RedirectToAction(nameof(Index));
-                else if (type == TypeOrganization.Hufiec.ToString()) return RedirectToAction(nameof(Index));
-                else if (type == TypeOrganization.Druzyna.ToString()) return RedirectToAction(nameof(Index));
-                else if (type == TypeOrganization.Zastep.ToString()) return RedirectToAction(nameof(Index));
+                else if (type == TypeOrganization.Choragiew.ToString()) return RedirectToAction(nameof(ShowChoragiew));
+                else if (type == TypeOrganization.Hufiec.ToString()) return RedirectToAction(nameof(ShowHufiec));
+                else if (type == TypeOrganization.Druzyna.ToString()) return RedirectToAction(nameof(ShowDruzyna));
+                else if (type == TypeOrganization.Zastep.ToString()) return RedirectToAction(nameof(ShowZastep));
                 return RedirectToAction(nameof(ShowAssignments));
             }
             return View(email);
@@ -772,21 +995,41 @@ namespace ScouTeams.Controllers
             {
                 List<Scout> scouts = new List<Scout>();
                 switch (email.type)
-                { 
+                {
                     case TypeOrganization.KwateraGlowna:
                         scouts = _userManager.Users.Where(u => u.KwateraGlowna != null && u.KwateraGlowna.KwateraGlownaId == email.OrganizationID).ToList();
                         break;
                     case TypeOrganization.Choragiew:
-
+                        var scoutsTmpC = _context.UserChoragiews.Where(u => u.ChoragiewId == email.OrganizationID).ToList();
+                        foreach (var scoutTMP in scoutsTmpC)
+                        {
+                            var scout = await _context.Users.FirstOrDefaultAsync(u => u.Id == scoutTMP.ScoutId);
+                            if (scout != null) scouts.Add(scout);
+                        }
                         break;
                     case TypeOrganization.Hufiec:
-
+                        var scoutsTmpH = _context.UserHufiecs.Where(u => u.HufiecId == email.OrganizationID).ToList();
+                        foreach (var scoutTMP in scoutsTmpH)
+                        {
+                            var scout = await _context.Users.FirstOrDefaultAsync(u => u.Id == scoutTMP.ScoutId);
+                            if (scout != null) scouts.Add(scout);
+                        }
                         break;
                     case TypeOrganization.Druzyna:
-
+                        var scoutsTmpD = _context.UserDruzynas.Where(u => u.DruzynaId == email.OrganizationID).ToList();
+                        foreach (var scoutTMP in scoutsTmpD)
+                        {
+                            var scout = await _context.Users.FirstOrDefaultAsync(u => u.Id == scoutTMP.ScoutId);
+                            if (scout != null) scouts.Add(scout);
+                        }
                         break;
                     case TypeOrganization.Zastep:
-
+                        var scoutsTmpZ = _context.UserZasteps.Where(u => u.ZastepId == email.OrganizationID).ToList();
+                        foreach (var scoutTMP in scoutsTmpZ)
+                        {
+                            var scout = await _context.Users.FirstOrDefaultAsync(u => u.Id == scoutTMP.ScoutId);
+                            if (scout != null) scouts.Add(scout);
+                        }
                         break;
                     default:
                         break;
@@ -825,16 +1068,20 @@ namespace ScouTeams.Controllers
                     scouts = _userManager.Users.Where(u => u.KwateraGlowna != null && u.KwateraGlowna.KwateraGlownaId == id).ToList();
                     break;
                 case TypeOrganization.Choragiew:
-
+                    var userInChoragiew = _context.UserChoragiews.Where(x => x.ChoragiewId == id).ToList();
+                    scouts = _userManager.Users.ToList().Where(u => userInChoragiew.Exists(x => x.ScoutId == u.Id)).ToList();
                     break;
                 case TypeOrganization.Hufiec:
-
+                    var userInHufiec = _context.UserHufiecs.Where(x => x.HufiecId == id).ToList();
+                    scouts = _userManager.Users.ToList().Where(u => userInHufiec.Exists(x => x.ScoutId == u.Id)).ToList();
                     break;
                 case TypeOrganization.Druzyna:
-
+                    var userInDruzyna = _context.UserDruzynas.Where(x => x.DruzynaId == id).ToList();
+                    scouts = _userManager.Users.ToList().Where(u => userInDruzyna.Exists(x => x.ScoutId == u.Id)).ToList();
                     break;
                 case TypeOrganization.Zastep:
-
+                    var userInZastep = _context.UserZasteps.Where(x => x.ZastepId == id).ToList();
+                    scouts = _userManager.Users.ToList().Where(u => userInZastep.Exists(x => x.ScoutId == u.Id)).ToList();
                     break;
                 default:
                     break;
@@ -894,7 +1141,7 @@ namespace ScouTeams.Controllers
             }
 
             var myScouts = new List<ScoutViewModel>();
-            var scoutsTmp = _context.UserChoragiews.Where(u => u.ChoragiewId != id).ToList();
+            var scoutsTmp = _context.UserChoragiews.Where(u => u.ChoragiewId == id).ToList();
             List<Scout> scouts = new List<Scout>();
             foreach (var scoutTMP in scoutsTmp)
             {
@@ -986,6 +1233,362 @@ namespace ScouTeams.Controllers
             return View(await PaginatedList<ScoutViewModel>.CreateAsync(myScouts, pageNumber ?? 1, pageSize));
         }
 
+        //
+        public async Task<IActionResult> ShowHufiec(string sortOrder, string currentFilter, string searchString, int? pageNumber)
+        {
+            var type = HttpContext.Session.GetString(SessionKeyType);
+            var id = HttpContext.Session.GetInt32(SessionKeyOrganization);
+            if (type == null || id == null || type != TypeOrganization.Choragiew.ToString())
+            {
+                return RedirectToAction(nameof(Index));
+            }
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+            }
+
+            var tmp = await _context.Choragiews.FirstOrDefaultAsync(x => x.ChoragiewId == id);
+            if (tmp == null)
+            {
+                return NotFound($"Unable to load chorągiew with this ID.");
+            }
+            var myFunctionInChoragiew = await _context.FunctionInOrganizations.FirstOrDefaultAsync(f => f.ScoutId == user.Id && ((f.ChorągiewId == tmp.KwateraGlownaId && f.HufiecId == tmp.KwateraGlownaId && f.DruzynaId == tmp.KwateraGlownaId && f.ZastepId == tmp.KwateraGlownaId) || ((f.ChorągiewId == id && f.HufiecId == -1 && f.DruzynaId == -1 && f.ZastepId == -1))));
+            if (myFunctionInChoragiew == null)
+            {
+                return RedirectToAction(nameof(ShowAssignments));
+            }
+
+            var myScouts = new List<ScoutViewModel>();
+            var scoutsTmp = _context.UserChoragiews.Where(u => u.ChoragiewId == id).ToList();
+            List<Scout> scouts = new List<Scout>();
+            foreach (var scoutTMP in scoutsTmp)
+            {
+                var scout = await _context.Users.FirstOrDefaultAsync(u => u.Id == scoutTMP.ScoutId);
+                if (scout != null) scouts.Add(scout);
+            }
+
+            foreach (var scout in scouts)
+            {
+                var scoutViewModel = new ScoutViewModel();
+                scoutViewModel.Id = scout.Id;
+                scoutViewModel.FirstName = scout.FirstName;
+                scoutViewModel.LastName = scout.LastName;
+
+                var functions = _context.FunctionInOrganizations.Where(f => f.ScoutId == scout.Id && f.ChorągiewId == id && f.HufiecId == -1 && f.DruzynaId == -1 && f.ZastepId == -1);
+                if (functions != null)
+                {
+                    var tmpList = new List<string>();
+
+                    foreach (var function in functions)
+                    {
+                        tmpList.Add(function.FunctionName.GetType()
+                        .GetMember(function.FunctionName.ToString())
+                        .First()
+                        .GetCustomAttribute<DisplayAttribute>()
+                        .GetName());
+                    }
+
+                    scoutViewModel.Functions = string.Join(", ", tmpList);
+                }
+
+                scoutViewModel.Email = scout.Email;
+                scoutViewModel.DateOfBirth = scout.DateOfBirth;
+
+                var contributions = _context.Contributions.Where(c => c.ScoutId == scout.Id).ToList();
+                if (contributions == null || contributions.Count == 0) scoutViewModel.PaidContributions = false;
+                else
+                {
+                    if (contributions.Count() - 1 > MonthDifference(contributions.First().Date)) scoutViewModel.PaidContributions = true;
+                    else scoutViewModel.PaidContributions = false;
+                }
+
+
+                scoutViewModel.ScoutDegree = scout.ScoutDegree;
+                scoutViewModel.InstructorDegree = scout.InstructorDegree;
+                myScouts.Add(scoutViewModel);
+            }
+
+
+            ViewData["TypeOrganization"] = TypeOrganization.Choragiew;
+            ViewData["OrganizationID"] = id;
+            ViewData["OrganizationName"] = tmp.Name;
+
+            ViewData["CurrentSort"] = sortOrder;
+            ViewData["NameSortParm"] = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
+            ViewData["DateSortParm"] = sortOrder == "Date" ? "date_desc" : "Date";
+            if (searchString != null)
+            {
+                pageNumber = 1;
+            }
+            else
+            {
+                searchString = currentFilter;
+            }
+            ViewData["CurrentFilter"] = searchString;
+
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                myScouts = myScouts.Where(s => s.LastName.ToUpper().Contains(searchString.ToUpper()) || s.FirstName.ToUpper().Contains(searchString.ToUpper())).ToList();
+            }
+
+            switch (sortOrder)
+            {
+                case "name_desc":
+                    myScouts = myScouts.OrderByDescending(s => s.LastName).ToList();
+                    break;
+                case "Date":
+                    myScouts = myScouts.OrderBy(s => s.DateOfBirth).ToList();
+                    break;
+                case "date_desc":
+                    myScouts = myScouts.OrderByDescending(s => s.DateOfBirth).ToList();
+                    break;
+                default:
+                    myScouts = myScouts.OrderBy(s => s.LastName).ToList();
+                    break;
+            }
+
+            int pageSize = 10;
+            return View(await PaginatedList<ScoutViewModel>.CreateAsync(myScouts, pageNumber ?? 1, pageSize));
+        }
+
+        //
+        public async Task<IActionResult> ShowDruzyna(string sortOrder, string currentFilter, string searchString, int? pageNumber)
+        {
+            var type = HttpContext.Session.GetString(SessionKeyType);
+            var id = HttpContext.Session.GetInt32(SessionKeyOrganization);
+            if (type == null || id == null || type != TypeOrganization.Choragiew.ToString())
+            {
+                return RedirectToAction(nameof(Index));
+            }
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+            }
+
+            var tmp = await _context.Choragiews.FirstOrDefaultAsync(x => x.ChoragiewId == id);
+            if (tmp == null)
+            {
+                return NotFound($"Unable to load chorągiew with this ID.");
+            }
+            var myFunctionInChoragiew = await _context.FunctionInOrganizations.FirstOrDefaultAsync(f => f.ScoutId == user.Id && ((f.ChorągiewId == tmp.KwateraGlownaId && f.HufiecId == tmp.KwateraGlownaId && f.DruzynaId == tmp.KwateraGlownaId && f.ZastepId == tmp.KwateraGlownaId) || ((f.ChorągiewId == id && f.HufiecId == -1 && f.DruzynaId == -1 && f.ZastepId == -1))));
+            if (myFunctionInChoragiew == null)
+            {
+                return RedirectToAction(nameof(ShowAssignments));
+            }
+
+            var myScouts = new List<ScoutViewModel>();
+            var scoutsTmp = _context.UserChoragiews.Where(u => u.ChoragiewId == id).ToList();
+            List<Scout> scouts = new List<Scout>();
+            foreach (var scoutTMP in scoutsTmp)
+            {
+                var scout = await _context.Users.FirstOrDefaultAsync(u => u.Id == scoutTMP.ScoutId);
+                if (scout != null) scouts.Add(scout);
+            }
+
+            foreach (var scout in scouts)
+            {
+                var scoutViewModel = new ScoutViewModel();
+                scoutViewModel.Id = scout.Id;
+                scoutViewModel.FirstName = scout.FirstName;
+                scoutViewModel.LastName = scout.LastName;
+
+                var functions = _context.FunctionInOrganizations.Where(f => f.ScoutId == scout.Id && f.ChorągiewId == id && f.HufiecId == -1 && f.DruzynaId == -1 && f.ZastepId == -1);
+                if (functions != null)
+                {
+                    var tmpList = new List<string>();
+
+                    foreach (var function in functions)
+                    {
+                        tmpList.Add(function.FunctionName.GetType()
+                        .GetMember(function.FunctionName.ToString())
+                        .First()
+                        .GetCustomAttribute<DisplayAttribute>()
+                        .GetName());
+                    }
+
+                    scoutViewModel.Functions = string.Join(", ", tmpList);
+                }
+
+                scoutViewModel.Email = scout.Email;
+                scoutViewModel.DateOfBirth = scout.DateOfBirth;
+
+                var contributions = _context.Contributions.Where(c => c.ScoutId == scout.Id).ToList();
+                if (contributions == null || contributions.Count == 0) scoutViewModel.PaidContributions = false;
+                else
+                {
+                    if (contributions.Count() - 1 > MonthDifference(contributions.First().Date)) scoutViewModel.PaidContributions = true;
+                    else scoutViewModel.PaidContributions = false;
+                }
+
+
+                scoutViewModel.ScoutDegree = scout.ScoutDegree;
+                scoutViewModel.InstructorDegree = scout.InstructorDegree;
+                myScouts.Add(scoutViewModel);
+            }
+
+
+            ViewData["TypeOrganization"] = TypeOrganization.Choragiew;
+            ViewData["OrganizationID"] = id;
+            ViewData["OrganizationName"] = tmp.Name;
+
+            ViewData["CurrentSort"] = sortOrder;
+            ViewData["NameSortParm"] = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
+            ViewData["DateSortParm"] = sortOrder == "Date" ? "date_desc" : "Date";
+            if (searchString != null)
+            {
+                pageNumber = 1;
+            }
+            else
+            {
+                searchString = currentFilter;
+            }
+            ViewData["CurrentFilter"] = searchString;
+
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                myScouts = myScouts.Where(s => s.LastName.ToUpper().Contains(searchString.ToUpper()) || s.FirstName.ToUpper().Contains(searchString.ToUpper())).ToList();
+            }
+
+            switch (sortOrder)
+            {
+                case "name_desc":
+                    myScouts = myScouts.OrderByDescending(s => s.LastName).ToList();
+                    break;
+                case "Date":
+                    myScouts = myScouts.OrderBy(s => s.DateOfBirth).ToList();
+                    break;
+                case "date_desc":
+                    myScouts = myScouts.OrderByDescending(s => s.DateOfBirth).ToList();
+                    break;
+                default:
+                    myScouts = myScouts.OrderBy(s => s.LastName).ToList();
+                    break;
+            }
+
+            int pageSize = 10;
+            return View(await PaginatedList<ScoutViewModel>.CreateAsync(myScouts, pageNumber ?? 1, pageSize));
+        }
+
+        //
+        public async Task<IActionResult> ShowZastep(string sortOrder, string currentFilter, string searchString, int? pageNumber)
+        {
+            var type = HttpContext.Session.GetString(SessionKeyType);
+            var id = HttpContext.Session.GetInt32(SessionKeyOrganization);
+            if (type == null || id == null || type != TypeOrganization.Choragiew.ToString())
+            {
+                return RedirectToAction(nameof(Index));
+            }
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+            }
+
+            var tmp = await _context.Choragiews.FirstOrDefaultAsync(x => x.ChoragiewId == id);
+            if (tmp == null)
+            {
+                return NotFound($"Unable to load chorągiew with this ID.");
+            }
+            var myFunctionInChoragiew = await _context.FunctionInOrganizations.FirstOrDefaultAsync(f => f.ScoutId == user.Id && ((f.ChorągiewId == tmp.KwateraGlownaId && f.HufiecId == tmp.KwateraGlownaId && f.DruzynaId == tmp.KwateraGlownaId && f.ZastepId == tmp.KwateraGlownaId) || ((f.ChorągiewId == id && f.HufiecId == -1 && f.DruzynaId == -1 && f.ZastepId == -1))));
+            if (myFunctionInChoragiew == null)
+            {
+                return RedirectToAction(nameof(ShowAssignments));
+            }
+
+            var myScouts = new List<ScoutViewModel>();
+            var scoutsTmp = _context.UserChoragiews.Where(u => u.ChoragiewId == id).ToList();
+            List<Scout> scouts = new List<Scout>();
+            foreach (var scoutTMP in scoutsTmp)
+            {
+                var scout = await _context.Users.FirstOrDefaultAsync(u => u.Id == scoutTMP.ScoutId);
+                if (scout != null) scouts.Add(scout);
+            }
+
+            foreach (var scout in scouts)
+            {
+                var scoutViewModel = new ScoutViewModel();
+                scoutViewModel.Id = scout.Id;
+                scoutViewModel.FirstName = scout.FirstName;
+                scoutViewModel.LastName = scout.LastName;
+
+                var functions = _context.FunctionInOrganizations.Where(f => f.ScoutId == scout.Id && f.ChorągiewId == id && f.HufiecId == -1 && f.DruzynaId == -1 && f.ZastepId == -1);
+                if (functions != null)
+                {
+                    var tmpList = new List<string>();
+
+                    foreach (var function in functions)
+                    {
+                        tmpList.Add(function.FunctionName.GetType()
+                        .GetMember(function.FunctionName.ToString())
+                        .First()
+                        .GetCustomAttribute<DisplayAttribute>()
+                        .GetName());
+                    }
+
+                    scoutViewModel.Functions = string.Join(", ", tmpList);
+                }
+
+                scoutViewModel.Email = scout.Email;
+                scoutViewModel.DateOfBirth = scout.DateOfBirth;
+
+                var contributions = _context.Contributions.Where(c => c.ScoutId == scout.Id).ToList();
+                if (contributions == null || contributions.Count == 0) scoutViewModel.PaidContributions = false;
+                else
+                {
+                    if (contributions.Count() - 1 > MonthDifference(contributions.First().Date)) scoutViewModel.PaidContributions = true;
+                    else scoutViewModel.PaidContributions = false;
+                }
+
+
+                scoutViewModel.ScoutDegree = scout.ScoutDegree;
+                scoutViewModel.InstructorDegree = scout.InstructorDegree;
+                myScouts.Add(scoutViewModel);
+            }
+
+
+            ViewData["TypeOrganization"] = TypeOrganization.Choragiew;
+            ViewData["OrganizationID"] = id;
+            ViewData["OrganizationName"] = tmp.Name;
+
+            ViewData["CurrentSort"] = sortOrder;
+            ViewData["NameSortParm"] = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
+            ViewData["DateSortParm"] = sortOrder == "Date" ? "date_desc" : "Date";
+            if (searchString != null)
+            {
+                pageNumber = 1;
+            }
+            else
+            {
+                searchString = currentFilter;
+            }
+            ViewData["CurrentFilter"] = searchString;
+
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                myScouts = myScouts.Where(s => s.LastName.ToUpper().Contains(searchString.ToUpper()) || s.FirstName.ToUpper().Contains(searchString.ToUpper())).ToList();
+            }
+
+            switch (sortOrder)
+            {
+                case "name_desc":
+                    myScouts = myScouts.OrderByDescending(s => s.LastName).ToList();
+                    break;
+                case "Date":
+                    myScouts = myScouts.OrderBy(s => s.DateOfBirth).ToList();
+                    break;
+                case "date_desc":
+                    myScouts = myScouts.OrderByDescending(s => s.DateOfBirth).ToList();
+                    break;
+                default:
+                    myScouts = myScouts.OrderBy(s => s.LastName).ToList();
+                    break;
+            }
+
+            int pageSize = 10;
+            return View(await PaginatedList<ScoutViewModel>.CreateAsync(myScouts, pageNumber ?? 1, pageSize));
+        }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()

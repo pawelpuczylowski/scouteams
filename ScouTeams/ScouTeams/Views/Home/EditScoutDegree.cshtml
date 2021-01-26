@@ -1,5 +1,6 @@
 ﻿@model ScouTeams.ViewModels.ScoutViewModel
 @using ScouTeams.Areas.Identity.Data;
+@using ScouTeams.ViewModels
 @{
     ViewData["Title"] = "EditScoutDegree";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -29,7 +30,7 @@
             </div>
             <div class="form-group">
                 <label asp-for="InstructorDegree" class="control-label"></label>
-                <input asp-for="InstructorDegree" class="form-control" disabled/>
+                <input asp-for="InstructorDegree" class="form-control" disabled />
             </div>
             <div class="form-group">
                 <input type="submit" value="Nadaj" class="btn btn-primary" />
@@ -39,7 +40,26 @@
 </div>
 
 <p>
-    <a asp-action="ShowAssignments">Anuluj</a>
+    @if (ViewData["TypeOrganization"].ToString() == TypeOrganization.KwateraGlowna.ToString())
+    {
+        <a asp-action="ShowKwateraGlowna">Anuluj</a>
+    }
+    else if (ViewData["TypeOrganization"].ToString() == TypeOrganization.Choragiew.ToString())
+    {
+        <a asp-action="ShowChoragiew">Anuluj</a>
+    }
+    else if (ViewData["TypeOrganization"].ToString() == TypeOrganization.Hufiec.ToString())
+    {
+        <a asp-action="ShowHufiec">Anuluj</a>
+    }
+    else if (ViewData["TypeOrganization"].ToString() == TypeOrganization.Druzyna.ToString())
+    {
+        <a asp-action="ShowDruzyna">Anuluj</a>
+    }
+    else if (ViewData["TypeOrganization"].ToString() == TypeOrganization.Zastep.ToString())
+    {
+        <a asp-action="ShowZastep">Anuluj</a>
+    }
 </p>
 
 @section Scripts {

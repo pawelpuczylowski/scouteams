@@ -31,6 +31,7 @@ namespace ScouTeams.ViewModels
         [Display(Name = "Opłacone składki")]
         public bool PaidContributions { get; set; }
 
+        [Display(Name = "Nazwa funkcji")]
         public FunctionName functionName { get; set; }
         public int ThisOrganizationId { get; set; }
         public TypeOrganization ThisTypeOrganization { get; set; }

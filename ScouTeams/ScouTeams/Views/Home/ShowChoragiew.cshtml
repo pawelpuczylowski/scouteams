@@ -10,7 +10,7 @@
 <p>
     <a asp-action="ShowScoutsForRecruitment">Dodaj harcerza</a> |
     @Html.ActionLink("Pobierz plik Excel", "ExportData", new { id = ViewData["OrganizationID"], typeOrganization = ViewData["TypeOrganization"], name = ViewData["OrganizationName"] }) |
-    @Html.ActionLink("Pokaż Chorągwie", "ShowSubordinateUnits", new { OrganizationId = ViewData["OrganizationID"], type = ViewData["TypeOrganization"] }) |
+    @Html.ActionLink("Pokaż Hufce", "ShowSubordinateUnits", new { OrganizationId = ViewData["OrganizationID"], type = ViewData["TypeOrganization"] }) |
     @Html.ActionLink("Wyślij Email do wszystkich", "SendEmailToScouts", new { id = ViewData["OrganizationID"], typeOrganization = ViewData["TypeOrganization"] })
 </p>
 <form asp-action="ShowChoragiew" method="get">
@@ -86,7 +86,7 @@
                 </td>
                 <td>
                     @Html.ActionLink("Usuń", "DeleteScout", new { scoutId = item.Id, OrganizationId = ViewData["OrganizationID"], type = ViewData["TypeOrganization"] }, new { onclick = "return confirm('Na pewno usunąć z Kwatery Głównej?');" })  |
-                    @Html.ActionLink("Składki", "Index", "Contributions", new { scoutId = item.Id }) |
+                    @Html.ActionLink("Składki", "Index", "Contributions", new { scoutId = item.Id, type = ViewData["TypeOrganization"] }) |
                     @Html.ActionLink("Wyślij Email", "SendEmailToScout", new { mail = item.Email })
                 </td>
             </tr>

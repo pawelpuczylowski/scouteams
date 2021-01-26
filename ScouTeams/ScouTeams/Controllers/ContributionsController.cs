@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ScouTeams.Data;
 using ScouTeams.Models;
+using ScouTeams.ViewModels;
 
 namespace ScouTeams.Controllers
 {
@@ -15,6 +17,7 @@ namespace ScouTeams.Controllers
     public class ContributionsController : Controller
     {
         private readonly ScouTDBContext _context;
+        private string SessionKeyType;
 
         public ContributionsController(ScouTDBContext context)
         {
@@ -22,12 +25,14 @@ namespace ScouTeams.Controllers
         }
 
         // GET: Contributions
-        public IActionResult Index(string scoutId)
+        public IActionResult Index(string scoutId, TypeOrganization type)
         {
             if (string.IsNullOrEmpty(scoutId))
             {
                 return RedirectToAction("ShowAssignments", "Home");
             }
+            HttpContext.Session.SetString(SessionKeyType, type.ToString());
+            ViewData["TypeOrganization"] = type;
             ViewData["ScoutID"] = scoutId;
             return View(_context.Contributions.Where(c => c.ScoutId == scoutId).AsEnumerable().Reverse());
         }
@@ -59,6 +64,30 @@ namespace ScouTeams.Controllers
             }
             var contribution = new Contribution();
             contribution.ScoutId = id;
+
+            ViewData["ScoutId"] = id;
+            var type = HttpContext.Session.GetString(SessionKeyType);
+            if (type == TypeOrganization.KwateraGlowna.ToString())
+            {
+                ViewData["TypeOrganization"] = TypeOrganization.KwateraGlowna;
+            }
+            else if (type == TypeOrganization.Choragiew.ToString())
+            {
+                ViewData["TypeOrganization"] = TypeOrganization.Choragiew;
+            }
+            else if (type == TypeOrganization.Hufiec.ToString())
+            {
+                ViewData["TypeOrganization"] = TypeOrganization.Hufiec;
+            }
+            else if (type == TypeOrganization.Druzyna.ToString())
+            {
+                ViewData["TypeOrganization"] = TypeOrganization.Druzyna;
+            }
+            else if (type == TypeOrganization.Zastep.ToString())
+            {
+                ViewData["TypeOrganization"] = TypeOrganization.Zastep;
+            }
+
             return View(contribution);
         }
 
@@ -75,6 +104,28 @@ namespace ScouTeams.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["ScoutId"] = contribution.ScoutId;
+            var type = HttpContext.Session.GetString(SessionKeyType);
+            if (type == TypeOrganization.KwateraGlowna.ToString())
+            {
+                ViewData["TypeOrganization"] = TypeOrganization.KwateraGlowna;
+            }
+            else if (type == TypeOrganization.Choragiew.ToString())
+            {
+                ViewData["TypeOrganization"] = TypeOrganization.Choragiew;
+            }
+            else if (type == TypeOrganization.Hufiec.ToString())
+            {
+                ViewData["TypeOrganization"] = TypeOrganization.Hufiec;
+            }
+            else if (type == TypeOrganization.Druzyna.ToString())
+            {
+                ViewData["TypeOrganization"] = TypeOrganization.Druzyna;
+            }
+            else if (type == TypeOrganization.Zastep.ToString())
+            {
+                ViewData["TypeOrganization"] = TypeOrganization.Zastep;
+            }
             return View(contribution);
         }
 
@@ -90,6 +141,29 @@ namespace ScouTeams.Controllers
             if (contribution == null)
             {
                 return NotFound();
+            }
+
+            ViewData["ScoutId"] = contribution.ScoutId;
+            var type = HttpContext.Session.GetString(SessionKeyType);
+            if (type == TypeOrganization.KwateraGlowna.ToString())
+            {
+                ViewData["TypeOrganization"] = TypeOrganization.KwateraGlowna;
+            }
+            else if (type == TypeOrganization.Choragiew.ToString())
+            {
+                ViewData["TypeOrganization"] = TypeOrganization.Choragiew;
+            }
+            else if (type == TypeOrganization.Hufiec.ToString())
+            {
+                ViewData["TypeOrganization"] = TypeOrganization.Hufiec;
+            }
+            else if (type == TypeOrganization.Druzyna.ToString())
+            {
+                ViewData["TypeOrganization"] = TypeOrganization.Druzyna;
+            }
+            else if (type == TypeOrganization.Zastep.ToString())
+            {
+                ViewData["TypeOrganization"] = TypeOrganization.Zastep;
             }
             return View(contribution);
         }
@@ -125,6 +199,29 @@ namespace ScouTeams.Controllers
                     }
                 }
                 return RedirectToAction(nameof(Index));
+            }
+
+            ViewData["ScoutId"] = contribution.ScoutId;
+            var type = HttpContext.Session.GetString(SessionKeyType);
+            if (type == TypeOrganization.KwateraGlowna.ToString())
+            {
+                ViewData["TypeOrganization"] = TypeOrganization.KwateraGlowna;
+            }
+            else if (type == TypeOrganization.Choragiew.ToString())
+            {
+                ViewData["TypeOrganization"] = TypeOrganization.Choragiew;
+            }
+            else if (type == TypeOrganization.Hufiec.ToString())
+            {
+                ViewData["TypeOrganization"] = TypeOrganization.Hufiec;
+            }
+            else if (type == TypeOrganization.Druzyna.ToString())
+            {
+                ViewData["TypeOrganization"] = TypeOrganization.Druzyna;
+            }
+            else if (type == TypeOrganization.Zastep.ToString())
+            {
+                ViewData["TypeOrganization"] = TypeOrganization.Zastep;
             }
             return View(contribution);
         }

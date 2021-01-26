@@ -25,10 +25,10 @@ namespace ScouTeams.Controllers
         // GET: FunctionInOrganizations
         public async Task<IActionResult> Index(string scoutId, int OrganizationId, TypeOrganization type)
         {
+            ViewData["TypeOrganization"] = type;
             switch (type)
             {
                 case TypeOrganization.KwateraGlowna:
-
                     return View(await _context.FunctionInOrganizations.Where(f => f.ScoutId == scoutId && f.ChorągiewId == OrganizationId && f.HufiecId == OrganizationId && f.DruzynaId == OrganizationId && f.ZastepId == OrganizationId).ToListAsync());
                 case TypeOrganization.Choragiew:
                     return View(await _context.FunctionInOrganizations.Where(f => f.ScoutId == scoutId && f.ChorągiewId == OrganizationId && f.HufiecId == -1 && f.DruzynaId == -1 && f.ZastepId == -1).ToListAsync());
@@ -160,7 +160,7 @@ namespace ScouTeams.Controllers
             var functionInOrganization = await _context.FunctionInOrganizations.FindAsync(id);
             _context.FunctionInOrganizations.Remove(functionInOrganization);
             await _context.SaveChangesAsync();
-            return RedirectToAction("ShowAssignments", "Home");//, new { area = "" });
+            return RedirectToAction("ShowAssignments", "Home");
         }
 
         private bool FunctionInOrganizationExists(int id)

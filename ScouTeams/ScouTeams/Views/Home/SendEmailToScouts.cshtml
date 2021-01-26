@@ -1,5 +1,5 @@
 ﻿@model ScouTeams.ViewModels.Email
-
+@using ScouTeams.ViewModels
 @{
     ViewData["Title"] = "SendEmailToScouts";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -13,7 +13,7 @@
 
             <div class="form-group">
                 <label asp-for="type" class="control-label"></label>
-                <input asp-for="type" class="form-control col-md-4" disabled/>
+                <input asp-for="type" class="form-control col-md-4" disabled />
             </div>
             <div class="form-group">
                 <label asp-for="Subject" class="control-label"></label>
@@ -33,7 +33,26 @@
 </div>
 
 <div>
-    <a asp-action="ShowAssignments">Anuluj</a>
+    @if (ViewData["TypeOrganization"].ToString() == TypeOrganization.KwateraGlowna.ToString())
+    {
+        <a asp-action="ShowKwateraGlowna">Wróć</a>
+    }
+    else if (ViewData["TypeOrganization"].ToString() == TypeOrganization.Choragiew.ToString())
+    {
+        <a asp-action="ShowChoragiew">Wróć</a>
+    }
+    else if (ViewData["TypeOrganization"].ToString() == TypeOrganization.Hufiec.ToString())
+    {
+        <a asp-action="ShowHufiec">Wróć</a>
+    }
+    else if (ViewData["TypeOrganization"].ToString() == TypeOrganization.Druzyna.ToString())
+    {
+        <a asp-action="ShowDruzyna">Wróć</a>
+    }
+    else if (ViewData["TypeOrganization"].ToString() == TypeOrganization.Zastep.ToString())
+    {
+        <a asp-action="ShowZastep">Wróć</a>
+    }
 </div>
 
 @section Scripts {

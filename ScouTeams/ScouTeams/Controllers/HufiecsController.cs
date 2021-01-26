@@ -2,14 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ScouTeams.Data;
 using ScouTeams.Models;
+using ScouTeams.ViewModels;
 
 namespace ScouTeams.Controllers
 {
+    [Authorize]
     public class HufiecsController : Controller
     {
         private readonly ScouTDBContext _context;
@@ -20,10 +23,16 @@ namespace ScouTeams.Controllers
         }
 
         // GET: Hufiecs
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int id)
         {
-            var scouTDBContext = _context.Hufiecs.Include(h => h.Choragiew);
-            return View(await scouTDBContext.ToListAsync());
+            if (id == 0)
+            {
+                return RedirectToAction("ShowChoragiew", "Home");
+            }
+            ViewData["OrganizationID"] = id;
+            ViewData["TypeOrganization"] = TypeOrganization.Hufiec;
+            var scouTDBContext = await _context.Hufiecs.Where(c => c.ChoragiewId == id).ToListAsync();
+            return View(scouTDBContext);
         }
 
         // GET: Hufiecs/Details/5
@@ -46,10 +55,15 @@ namespace ScouTeams.Controllers
         }
 
         // GET: Hufiecs/Create
-        public IActionResult Create()
+        public IActionResult Create(int id)
         {
-            ViewData["ChoragiewId"] = new SelectList(_context.Choragiews, "ChoragiewId", "ChoragiewId");
-            return View();
+            if (id == 0)
+            {
+                return NotFound();
+            }
+            Hufiec hufiec = new Hufiec();
+            hufiec.ChoragiewId = id;
+            return View(hufiec);
         }
 
         // POST: Hufiecs/Create
@@ -65,7 +79,6 @@ namespace ScouTeams.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ChoragiewId"] = new SelectList(_context.Choragiews, "ChoragiewId", "ChoragiewId", hufiec.ChoragiewId);
             return View(hufiec);
         }
 
@@ -82,7 +95,6 @@ namespace ScouTeams.Controllers
             {
                 return NotFound();
             }
-            ViewData["ChoragiewId"] = new SelectList(_context.Choragiews, "ChoragiewId", "ChoragiewId", hufiec.ChoragiewId);
             return View(hufiec);
         }
 
@@ -118,7 +130,6 @@ namespace ScouTeams.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ChoragiewId"] = new SelectList(_context.Choragiews, "ChoragiewId", "ChoragiewId", hufiec.ChoragiewId);
             return View(hufiec);
         }
 
@@ -149,7 +160,7 @@ namespace ScouTeams.Controllers
             var hufiec = await _context.Hufiecs.FindAsync(id);
             _context.Hufiecs.Remove(hufiec);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Index), new { id = hufiec.ChoragiewId });
         }
 
         private bool HufiecExists(int id)
