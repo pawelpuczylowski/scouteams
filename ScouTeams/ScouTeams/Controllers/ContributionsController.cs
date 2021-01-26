@@ -17,7 +17,7 @@ namespace ScouTeams.Controllers
     public class ContributionsController : Controller
     {
         private readonly ScouTDBContext _context;
-        private string SessionKeyType;
+        private string SessionKeyMyType = "_type";
 
         public ContributionsController(ScouTDBContext context)
         {
@@ -31,7 +31,7 @@ namespace ScouTeams.Controllers
             {
                 return RedirectToAction("ShowAssignments", "Home");
             }
-            HttpContext.Session.SetString(SessionKeyType, type.ToString());
+            HttpContext.Session.SetString(SessionKeyMyType, type.ToString());
             ViewData["TypeOrganization"] = type;
             ViewData["ScoutID"] = scoutId;
             return View(_context.Contributions.Where(c => c.ScoutId == scoutId).AsEnumerable().Reverse());
@@ -66,7 +66,7 @@ namespace ScouTeams.Controllers
             contribution.ScoutId = id;
 
             ViewData["ScoutId"] = id;
-            var type = HttpContext.Session.GetString(SessionKeyType);
+            var type = HttpContext.Session.GetString(SessionKeyMyType);
             if (type == TypeOrganization.KwateraGlowna.ToString())
             {
                 ViewData["TypeOrganization"] = TypeOrganization.KwateraGlowna;
@@ -105,7 +105,7 @@ namespace ScouTeams.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewData["ScoutId"] = contribution.ScoutId;
-            var type = HttpContext.Session.GetString(SessionKeyType);
+            var type = HttpContext.Session.GetString(SessionKeyMyType);
             if (type == TypeOrganization.KwateraGlowna.ToString())
             {
                 ViewData["TypeOrganization"] = TypeOrganization.KwateraGlowna;
@@ -144,7 +144,7 @@ namespace ScouTeams.Controllers
             }
 
             ViewData["ScoutId"] = contribution.ScoutId;
-            var type = HttpContext.Session.GetString(SessionKeyType);
+            var type = HttpContext.Session.GetString(SessionKeyMyType);
             if (type == TypeOrganization.KwateraGlowna.ToString())
             {
                 ViewData["TypeOrganization"] = TypeOrganization.KwateraGlowna;
@@ -202,7 +202,7 @@ namespace ScouTeams.Controllers
             }
 
             ViewData["ScoutId"] = contribution.ScoutId;
-            var type = HttpContext.Session.GetString(SessionKeyType);
+            var type = HttpContext.Session.GetString(SessionKeyMyType);
             if (type == TypeOrganization.KwateraGlowna.ToString())
             {
                 ViewData["TypeOrganization"] = TypeOrganization.KwateraGlowna;

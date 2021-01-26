@@ -10,7 +10,7 @@ namespace ScouTeams.Models
     {
         [Display(Name = "Brak")] Brak, [Display(Name = "Podzastępowy(-wa)")] Podzastepowy, [Display(Name = "Zastępowy(-wa)")] Zastepowy,
         [Display(Name = "Przyboczny(-na)")] Przyboczny, [Display(Name = "Drużynowy(-wa)")] Druzynowy, [Display(Name = "Kapelan")] Kapelan, [Display(Name = "Skarbnik")] Skarbnik,
-        Komendant, [Display(Name = "Zastępca(-czyni) komendanta")] ZastepcaKomendanta, [Display(Name = "Członek")] Czlonek,
+        [Display(Name = "Komendant")] Komendant, [Display(Name = "Zastępca(-czyni) komendanta")] ZastepcaKomendanta, [Display(Name = "Członek")] Czlonek,
         [Display(Name = "Członek Komisji Rewizyjnej")] CzlonekKomisjiRewizyjnej, 
         [Display(Name = "Zastępca(-czyni) przewodniczącego Komisji Rewizyjnej")] ZastepcaPrzewodniczacegoKomisjiRewizyjnej, 
         [Display(Name = "Przewodniczący(-ca) Komisji Rewizyjnej")] PrzewodniczacyKomisjiRewizyjnej,
