@@ -1,0 +1,123 @@
+﻿@model PaginatedList<ScouTeams.ViewModels.ScoutViewModel>
+
+@{
+    ViewData["Title"] = "ShowZastep";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>@ViewData["OrganizationName"]</h1>
+@if (ViewData["ScoutHasFunction"].ToString() == "yes")
+{
+    <p>
+        <a asp-action="ShowScoutsForRecruitment">Dodaj harcerza</a> |
+        @Html.ActionLink("Pobierz plik Excel", "ExportData", new { id = ViewData["OrganizationID"], typeOrganization = ViewData["TypeOrganization"], name = ViewData["OrganizationName"] }) |
+        @Html.ActionLink("Pokaż hufce", "ShowSubordinateUnits", new { OrganizationId = ViewData["OrganizationID"], type = ViewData["TypeOrganization"] }) |
+        @Html.ActionLink("Wyślij Email do wszystkich", "SendEmailToScouts", new { id = ViewData["OrganizationID"], typeOrganization = ViewData["TypeOrganization"] })
+    </p>
+    <form asp-action="ShowZastep" method="get">
+        <div class="form-actions no-color">
+            <p>
+                Znajdź po nazwie: <input type="text" name="SearchString" value="@ViewData["CurrentFilter"]" />
+                <input type="submit" value="Szukaj" class="btn btn-default" /> |
+                <a asp-action="ShowZastep">Wróć do pełnej listy</a>
+            </p>
+        </div>
+    </form>
+}
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Imię
+            </th>
+            <th>
+                <a asp-action="ShowZastep" asp-route-sortOrder="@ViewData["NameSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">Nazwisko</a>
+            </th>
+            @if (ViewData["ScoutHasFunction"].ToString() == "yes")
+            {
+                <th>
+                    Funkcja
+                </th>
+                <th>
+                    E-mail
+                </th>
+                <th>
+                    <a asp-action="ShowZastep" asp-route-sortOrder="@ViewData["DateSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">Data urodzenia</a>
+                </th>
+                <th>
+                    Opłacone składki
+                </th>
+                <th>
+                    Stopień harcerski
+                </th>
+                <th>
+                    Stopień instruktorski
+                </th>
+                <th></th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.FirstName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.LastName)
+                </td>
+                @if (ViewData["ScoutHasFunction"].ToString() == "yes")
+                {
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Functions) <br />
+                        @Html.ActionLink("Nadaj funkcję", "AddFunctionScout", new { scoutId = item.Id, OrganizationId = ViewData["OrganizationID"], type = ViewData["TypeOrganization"] }) |
+                        @Html.ActionLink("Odbierz funkcję", "Index", "FunctionInOrganizations", new { scoutId = item.Id, OrganizationId = ViewData["OrganizationID"], type = ViewData["TypeOrganization"] })
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Email)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.DateOfBirth)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.PaidContributions)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ScoutDegree) <br />
+                        @Html.ActionLink("Edytuj stopień harcerski", "EditScoutDegree", new { scoutId = item.Id })
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.InstructorDegree) <br />
+                        @Html.ActionLink("Edytuj stopień instruktorski", "EditInstructorDegree", new { scoutId = item.Id })
+                    </td>
+                    <td>
+                        @Html.ActionLink("Składki", "Index", "Contributions", new { scoutId = item.Id, type = ViewData["TypeOrganization"] }) |
+                        @Html.ActionLink("Wyślij Email", "SendEmailToScout", new { mail = item.Email }) |
+                        @if (String.IsNullOrEmpty(item.Functions))@Html.ActionLink("Usuń", "DeleteScout", new { scoutId = item.Id, OrganizationId = ViewData["OrganizationID"], type = ViewData["TypeOrganization"] }, new { onclick = "return confirm('Na pewno usunąć z Kwatery Głównej?');" })
+                    </td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>
+
+@{
+    var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+    var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+}
+
+<a asp-action="ShowZastep"
+   asp-route-sortOrder="@ViewData["CurrentSort"]"
+   asp-route-pageNumber="@(Model.PageIndex - 1)"
+   asp-route-currentFilter="@ViewData["CurrentFilter"]"
+   class="btn btn-default @prevDisabled">
+    Wcześniejsza
+</a>
+<a asp-action="ShowZastep"
+   asp-route-sortOrder="@ViewData["CurrentSort"]"
+   asp-route-pageNumber="@(Model.PageIndex + 1)"
+   asp-route-currentFilter="@ViewData["CurrentFilter"]"
+   class="btn btn-default @nextDisabled">
+    Następna
+</a>

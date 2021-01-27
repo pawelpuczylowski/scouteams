@@ -10,6 +10,7 @@ namespace ScouTeams.Models
 {
     public class Druzyna
     {
+        [Key]
         [Display(Name = "Indeks drużyny")]
         public int DruzynaId { get; set; }
 

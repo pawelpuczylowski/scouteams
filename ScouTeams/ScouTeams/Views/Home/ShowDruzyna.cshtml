@@ -1,7 +1,7 @@
 ﻿@model PaginatedList<ScouTeams.ViewModels.ScoutViewModel>
 
 @{
-    ViewData["Title"] = "ShowChoragiew";
+    ViewData["Title"] = "ShowDruzyna";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -10,15 +10,15 @@
 <p>
     <a asp-action="ShowScoutsForRecruitment">Dodaj harcerza</a> |
     @Html.ActionLink("Pobierz plik Excel", "ExportData", new { id = ViewData["OrganizationID"], typeOrganization = ViewData["TypeOrganization"], name = ViewData["OrganizationName"] }) |
-    @Html.ActionLink("Pokaż hufce", "ShowSubordinateUnits", new { OrganizationId = ViewData["OrganizationID"], type = ViewData["TypeOrganization"] }) |
+    @Html.ActionLink("Pokaż zastępy", "ShowSubordinateUnits", new { OrganizationId = ViewData["OrganizationID"], type = ViewData["TypeOrganization"] }) |
     @Html.ActionLink("Wyślij Email do wszystkich", "SendEmailToScouts", new { id = ViewData["OrganizationID"], typeOrganization = ViewData["TypeOrganization"] })
 </p>
-<form asp-action="ShowChoragiew" method="get">
+<form asp-action="ShowDruzyna" method="get">
     <div class="form-actions no-color">
         <p>
             Znajdź po nazwie: <input type="text" name="SearchString" value="@ViewData["CurrentFilter"]" />
             <input type="submit" value="Szukaj" class="btn btn-default" /> |
-            <a asp-action="ShowChoragiew">Wróć do pełnej listy</a>
+            <a asp-action="ShowDruzyna">Wróć do pełnej listy</a>
         </p>
     </div>
 </form>
@@ -29,7 +29,7 @@
                 Imię
             </th>
             <th>
-                <a asp-action="ShowChoragiew" asp-route-sortOrder="@ViewData["NameSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">Nazwisko</a>
+                <a asp-action="ShowDruzyna" asp-route-sortOrder="@ViewData["NameSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">Nazwisko</a>
             </th>
             <th>
                 Funkcja
@@ -38,7 +38,7 @@
                 E-mail
             </th>
             <th>
-                <a asp-action="ShowChoragiew" asp-route-sortOrder="@ViewData["DateSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">Data urodzenia</a>
+                <a asp-action="ShowDruzyna" asp-route-sortOrder="@ViewData["DateSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">Data urodzenia</a>
             </th>
             <th>
                 Opłacone składki
@@ -87,7 +87,7 @@
                 <td>
                     @Html.ActionLink("Składki", "Index", "Contributions", new { scoutId = item.Id, type = ViewData["TypeOrganization"] }) |
                     @Html.ActionLink("Wyślij Email", "SendEmailToScout", new { mail = item.Email }) |
-                    @if (String.IsNullOrEmpty(item.Functions)) @Html.ActionLink("Usuń", "DeleteScout", new { scoutId = item.Id, OrganizationId = ViewData["OrganizationID"], type = ViewData["TypeOrganization"] }, new { onclick = "return confirm('Na pewno usunąć z Kwatery Głównej?');" })
+                    @if (String.IsNullOrEmpty(item.Functions))@Html.ActionLink("Usuń", "DeleteScout", new { scoutId = item.Id, OrganizationId = ViewData["OrganizationID"], type = ViewData["TypeOrganization"] }, new { onclick = "return confirm('Na pewno usunąć z Kwatery Głównej?');" })
                 </td>
             </tr>
         }
@@ -99,14 +99,14 @@
     var nextDisabled = !Model.HasNextPage ? "disabled" : "";
 }
 
-<a asp-action="ShowChoragiew"
+<a asp-action="ShowDruzyna"
    asp-route-sortOrder="@ViewData["CurrentSort"]"
    asp-route-pageNumber="@(Model.PageIndex - 1)"
    asp-route-currentFilter="@ViewData["CurrentFilter"]"
    class="btn btn-default @prevDisabled">
     Wcześniejsza
 </a>
-<a asp-action="ShowChoragiew"
+<a asp-action="ShowDruzyna"
    asp-route-sortOrder="@ViewData["CurrentSort"]"
    asp-route-pageNumber="@(Model.PageIndex + 1)"
    asp-route-currentFilter="@ViewData["CurrentFilter"]"
