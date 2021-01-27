@@ -137,7 +137,7 @@ namespace ScouTeams.Migrations
                 table: "UserDruzynas",
                 column: "DruzynaId",
                 principalTable: "Druzynas",
-                principalColumn: "HufiecId",
+                principalColumn: "DruzynaId",
                 onDelete: ReferentialAction.Cascade);
 
             migrationBuilder.AddForeignKey(

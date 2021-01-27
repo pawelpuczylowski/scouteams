@@ -10,8 +10,8 @@ using ScouTeams.Data;
 namespace ScouTeams.Migrations
 {
     [DbContext(typeof(ScouTDBContext))]
-    [Migration("20210127001331_InitialDruzynas")]
-    partial class InitialDruzynas
+    [Migration("20210127164708_Initial create database")]
+    partial class Initialcreatedatabase
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

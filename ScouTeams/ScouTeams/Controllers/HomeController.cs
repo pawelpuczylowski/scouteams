@@ -87,7 +87,8 @@ namespace ScouTeams.Controllers
                 {
                     foreach (var zastep in zasteps)
                     {
-                        Assignment assignment = new Assignment(TypeOrganization.Zastep, zastep.ZastepId, zastep.Zastep.Name);
+                        var myAssignment = await _context.Zastep.FirstOrDefaultAsync(x => x.ZastepId == zastep.ZastepId);
+                        Assignment assignment = new Assignment(TypeOrganization.Zastep, zastep.ZastepId, myAssignment.Name);
                         assignments.Add(assignment);
                     }
                 }
@@ -1662,6 +1663,7 @@ namespace ScouTeams.Controllers
             {
                 return NotFound($"Nie znaleziono Kwatery Głównej.");
             }
+            scout.KwateraGlowna = tmp;
             FunctionInOrganization functionInOrganization = new FunctionInOrganization();
             functionInOrganization.ScoutId = scout.Id;
             functionInOrganization.FunctionName = FunctionName.NaczelnikZHP;

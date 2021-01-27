@@ -350,25 +350,24 @@ namespace ScouTeams.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Druzynas",
-                columns: table => new
-                {
-                    HufiecId = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    DruzynaId = table.Column<int>(nullable: false),
-                    Name = table.Column<string>(nullable: true),
-                    HufiecId1 = table.Column<int>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Druzynas", x => x.HufiecId);
-                    table.ForeignKey(
-                        name: "FK_Druzynas_Hufiecs_HufiecId1",
-                        column: x => x.HufiecId1,
-                        principalTable: "Hufiecs",
-                        principalColumn: "HufiecId",
-                        onDelete: ReferentialAction.Cascade);
-                });
+               name: "Druzynas",
+               columns: table => new
+               {
+                   DruzynaId = table.Column<int>(nullable: false)
+                       .Annotation("SqlServer:Identity", "1, 1"),
+                   Name = table.Column<string>(nullable: true),
+                   HufiecId = table.Column<int>(nullable: false)
+               },
+               constraints: table =>
+               {
+                   table.PrimaryKey("PK_Druzynas", x => x.DruzynaId);
+                   table.ForeignKey(
+                       name: "FK_Druzynas_Hufiecs_HufiecId",
+                       column: x => x.HufiecId,
+                       principalTable: "Hufiecs",
+                       principalColumn: "HufiecId",
+                       onDelete: ReferentialAction.Cascade);
+               });
 
             migrationBuilder.CreateTable(
                 name: "UserHufiec",
@@ -408,7 +407,7 @@ namespace ScouTeams.Migrations
                         name: "FK_UserDruzyna_Druzynas_DruzynaId",
                         column: x => x.DruzynaId,
                         principalTable: "Druzynas",
-                        principalColumn: "HufiecId",
+                        principalColumn: "DruzynaId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_UserDruzyna_AspNetUsers_ScoutId",
@@ -434,7 +433,7 @@ namespace ScouTeams.Migrations
                         name: "FK_Zastep_Druzynas_DruzynaId",
                         column: x => x.DruzynaId,
                         principalTable: "Druzynas",
-                        principalColumn: "HufiecId",
+                        principalColumn: "DruzynaId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -517,9 +516,9 @@ namespace ScouTeams.Migrations
                 column: "ScoutId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Druzynas_HufiecId1",
+                name: "IX_Druzynas_DruzynaId",
                 table: "Druzynas",
-                column: "HufiecId1");
+                column: "DruzynaId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_FunctionInOrganizations_ScoutId",

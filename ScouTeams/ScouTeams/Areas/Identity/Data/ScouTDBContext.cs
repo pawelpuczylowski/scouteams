@@ -74,7 +74,7 @@ namespace ScouTeams.Data
 
 
             modelBuilder.Entity<Druzyna>()
-                .HasKey(x => x.HufiecId);
+                .HasKey(x => x.DruzynaId);
 
             modelBuilder.Entity<UserDruzyna>()
                 .HasKey(x => new { x.ScoutId, x.DruzynaId });
