@@ -85,6 +85,7 @@
                     @Html.ActionLink("Edytuj stopień instruktorski", "EditInstructorDegree", new { scoutId = item.Id })
                 </td>
                 <td>
+                    @Html.ActionLink("Sprawności", "Index", "Skills", new { scoutId = item.Id }) |
                     @Html.ActionLink("Składki", "Index", "Contributions", new { scoutId = item.Id, type = ViewData["TypeOrganization"] }) |
                     @Html.ActionLink("Wyślij Email", "SendEmailToScout", new { mail = item.Email }) |
                     @if (String.IsNullOrEmpty(item.Functions))@Html.ActionLink("Usuń", "DeleteScout", new { scoutId = item.Id, OrganizationId = ViewData["OrganizationID"], type = ViewData["TypeOrganization"] }, new { onclick = "return confirm('Na pewno usunąć z Kwatery Głównej?');" })

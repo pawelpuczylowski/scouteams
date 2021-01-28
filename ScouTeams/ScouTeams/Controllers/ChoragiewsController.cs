@@ -160,7 +160,7 @@ namespace ScouTeams.Controllers
             var choragiew = await _context.Choragiews.FindAsync(id);
             _context.Choragiews.Remove(choragiew);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index), new { id = choragiew.KwateraGlownaId });
+            return RedirectToAction("DeleteFunctionsInAssignment", "Home", new { id = id, type = TypeOrganization.Choragiew });
         }
 
         private bool ChoragiewExists(int id)

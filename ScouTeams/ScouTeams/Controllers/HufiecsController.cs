@@ -160,7 +160,7 @@ namespace ScouTeams.Controllers
             var hufiec = await _context.Hufiecs.FindAsync(id);
             _context.Hufiecs.Remove(hufiec);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index), new { id = hufiec.ChoragiewId });
+            return RedirectToAction("DeleteFunctionsInAssignment", "Home", new { id = id, type = TypeOrganization.Hufiec });
         }
 
         private bool HufiecExists(int id)

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +11,7 @@ using ScouTeams.Models;
 
 namespace ScouTeams.Controllers
 {
+    [Authorize]
     public class SkillsController : Controller
     {
         private readonly ScouTDBContext _context;
@@ -20,9 +22,10 @@ namespace ScouTeams.Controllers
         }
 
         // GET: Skills
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string scoutId)
         {
-            return View(await _context.Skills.ToListAsync());
+            ViewData["scoutId"] = scoutId;
+            return View(await _context.Skills.Where(s => s.ScoutId == scoutId).ToListAsync());
         }
 
         // GET: Skills/Details/5
@@ -44,9 +47,12 @@ namespace ScouTeams.Controllers
         }
 
         // GET: Skills/Create
-        public IActionResult Create()
+        public IActionResult Create(string id)
         {
-            return View();
+            Skill skill = new Skill();
+            skill.ScoutId = id;
+            ViewData["scoutId"] = id;
+            return View(skill);
         }
 
         // POST: Skills/Create
@@ -60,8 +66,9 @@ namespace ScouTeams.Controllers
             {
                 _context.Add(skill);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Index), new { skill.ScoutId });
             }
+            ViewData["scoutId"] = skill.ScoutId;
             return View(skill);
         }
 
@@ -111,7 +118,7 @@ namespace ScouTeams.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Index), new { skill.ScoutId });
             }
             return View(skill);
         }

@@ -160,7 +160,7 @@ namespace ScouTeams.Controllers
             var zastep = await _context.Zastep.FindAsync(id);
             _context.Zastep.Remove(zastep);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index), new { id = zastep.DruzynaId });
+            return RedirectToAction("DeleteFunctionsInAssignment", "Home", new { id = id, type = TypeOrganization.Zastep });
         }
 
         private bool ZastepExists(int id)

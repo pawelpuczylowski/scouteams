@@ -141,7 +141,7 @@ namespace ScouTeams.Controllers
             }
 
             var druzyna = await _context.Druzynas
-                .FirstOrDefaultAsync(m => m.HufiecId == id);
+                .FirstOrDefaultAsync(m => m.DruzynaId == id);
             if (druzyna == null)
             {
                 return NotFound();
@@ -158,7 +158,7 @@ namespace ScouTeams.Controllers
             var druzyna = await _context.Druzynas.FindAsync(id);
             _context.Druzynas.Remove(druzyna);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index), new { id = druzyna.HufiecId });
+            return RedirectToAction("DeleteFunctionsInAssignment", "Home", new { id = id, type = TypeOrganization.Druzyna });
         }
 
         private bool DruzynaExists(int id)

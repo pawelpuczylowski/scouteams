@@ -1643,6 +1643,62 @@ namespace ScouTeams.Controllers
             else if (type == TypeOrganization.Zastep.ToString()) return TypeOrganization.Zastep;
             else return 0;
         }
+
+        public async Task<IActionResult> DeleteFunctionsInAssignment(int id, TypeOrganization type)
+        {
+            switch (type)
+            {
+                case TypeOrganization.KwateraGlowna:
+                    var functinsInKwateraGlowna = _context.FunctionInOrganizations.Where(x => x.ZastepId == id && x.DruzynaId == id && x.HufiecId == id && x.ChorągiewId == id).ToList();
+                    foreach (var item in functinsInKwateraGlowna)
+                    {
+                        var functionInOrganization = await _context.FunctionInOrganizations.FindAsync(item.FunctionInOrganizationId);
+                        _context.FunctionInOrganizations.Remove(functionInOrganization);
+                        await _context.SaveChangesAsync();
+                    }
+                    return RedirectToAction(nameof(ShowKwateraGlowna));
+                case TypeOrganization.Choragiew:
+                    var functinsInChoragiew = _context.FunctionInOrganizations.Where(x => x.ZastepId == -1 && x.DruzynaId == -1 && x.HufiecId == -1 && x.ChorągiewId == id).ToList();
+                    foreach (var item in functinsInChoragiew)
+                    {
+                        var functionInOrganization = await _context.FunctionInOrganizations.FindAsync(item.FunctionInOrganizationId);
+                        _context.FunctionInOrganizations.Remove(functionInOrganization);
+                        await _context.SaveChangesAsync();
+                    }
+                    return RedirectToAction(nameof(ShowKwateraGlowna));
+                case TypeOrganization.Hufiec:
+                    var functinsInHufiec = _context.FunctionInOrganizations.Where(x => x.ZastepId == -1 && x.DruzynaId == -1 && x.HufiecId == id && x.ChorągiewId == -1).ToList();
+                    foreach (var item in functinsInHufiec)
+                    {
+                        var functionInOrganization = await _context.FunctionInOrganizations.FindAsync(item.FunctionInOrganizationId);
+                        _context.FunctionInOrganizations.Remove(functionInOrganization);
+                        await _context.SaveChangesAsync();
+                    }
+                    return RedirectToAction(nameof(ShowChoragiew));
+                case TypeOrganization.Druzyna:
+                    var functinsInDruzyna = _context.FunctionInOrganizations.Where(x => x.ZastepId == -1 && x.DruzynaId == id && x.HufiecId == -1 && x.ChorągiewId == -1).ToList();
+                    foreach (var item in functinsInDruzyna)
+                    {
+                        var functionInOrganization = await _context.FunctionInOrganizations.FindAsync(item.FunctionInOrganizationId);
+                        _context.FunctionInOrganizations.Remove(functionInOrganization);
+                        await _context.SaveChangesAsync();
+                    }
+                    return RedirectToAction(nameof(ShowHufiec));
+                case TypeOrganization.Zastep:
+                    var functinsInZastep = _context.FunctionInOrganizations.Where(x => x.ZastepId == id && x.DruzynaId == -1 && x.HufiecId == -1 && x.ChorągiewId == -1).ToList();
+                    foreach (var item in functinsInZastep)
+                    {
+                        var functionInOrganization = await _context.FunctionInOrganizations.FindAsync(item.FunctionInOrganizationId);
+                        _context.FunctionInOrganizations.Remove(functionInOrganization);
+                        await _context.SaveChangesAsync();
+                    }
+                    return RedirectToAction(nameof(ShowDruzyna));
+                default:
+                    return RedirectToAction(nameof(Index));
+            }
+        }
+
+
         public async Task<IActionResult> Init()
         {
             KwateraGlowna kwateraGlowna = new KwateraGlowna();
