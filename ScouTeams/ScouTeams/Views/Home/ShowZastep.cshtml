@@ -11,7 +11,7 @@
     <p>
         <a asp-action="ShowScoutsForRecruitment">Dodaj harcerza</a> |
         @Html.ActionLink("Pobierz plik Excel", "ExportData", new { id = ViewData["OrganizationID"], typeOrganization = ViewData["TypeOrganization"], name = ViewData["OrganizationName"] }) |
-        @Html.ActionLink("Pokaż hufce", "ShowSubordinateUnits", new { OrganizationId = ViewData["OrganizationID"], type = ViewData["TypeOrganization"] }) |
+        @Html.ActionLink("Zbiórki", "Index", "Meetings", new { OrganizationId = ViewData["OrganizationID"], type = ViewData["TypeOrganization"] }) |
         @Html.ActionLink("Wyślij Email do wszystkich", "SendEmailToScouts", new { id = ViewData["OrganizationID"], typeOrganization = ViewData["TypeOrganization"] })
     </p>
     <form asp-action="ShowZastep" method="get">

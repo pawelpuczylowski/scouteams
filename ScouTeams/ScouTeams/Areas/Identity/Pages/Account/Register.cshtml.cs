@@ -57,7 +57,7 @@ namespace ScouTeams.Areas.Identity.Pages.Account
             [Required(ErrorMessage = "Proszę podać nazwisko")]
             public string LastName { get; set; }
 
-            [DataType(DataType.DateTime)]
+            [DataType(DataType.Date)]
             [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:dd/MM/yyyy}")]
             [Display(Name = "Data urodzenia")]
             [Required(ErrorMessage = "Proszę podać datę urodzenia")]
@@ -120,7 +120,7 @@ namespace ScouTeams.Areas.Identity.Pages.Account
                         protocol: Request.Scheme);
 
                     await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
-                        $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                        $"By potwierdzić konto <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>kliknij tutaj</a>.");
 
                     if (_userManager.Options.SignIn.RequireConfirmedAccount)
                     {

@@ -28,6 +28,7 @@ namespace ScouTeams.Areas.Identity.Data
         public string LastName { get; set; }
 
         [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:dd/MM/yyyy}")]
+        [DataType(DataType.Date)]
         [Display(Name = "Data urodzenia")]
         public DateTime DateOfBirth { get; set; }
 

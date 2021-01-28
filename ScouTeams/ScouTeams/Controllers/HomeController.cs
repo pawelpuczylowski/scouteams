@@ -46,7 +46,7 @@ namespace ScouTeams.Controllers
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
-                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+                return NotFound($"Nie znaleziono tego użytkownika");
             }
 
             List<Assignment> assignments = new List<Assignment>();
@@ -105,7 +105,7 @@ namespace ScouTeams.Controllers
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
-                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+                return NotFound($"Nie znaleziono tego użytkownika");
             }
 
             return View(_context.Contributions.Where(c => c.ScoutId == user.Id).AsEnumerable().Reverse());
@@ -116,7 +116,7 @@ namespace ScouTeams.Controllers
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
-                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+                return NotFound($"Nie znaleziono tego użytkownika");
             }
             List<MeetingWithPresence> meetingsWithPresence = new List<MeetingWithPresence>();
 
@@ -165,7 +165,7 @@ namespace ScouTeams.Controllers
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
-                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+                return NotFound($"Nie znaleziono tego użytkownika");
             }
 
             return View(_context.Skills.Where(s => s.ScoutId == user.Id).AsEnumerable().Reverse());
@@ -212,13 +212,13 @@ namespace ScouTeams.Controllers
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
-                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+                return NotFound($"Nie znaleziono tego użytkownika");
             }
 
             var tmp = await _context.KwateraGlowna.FirstOrDefaultAsync(x => x.KwateraGlownaId == id);
             if (tmp == null)
             {
-                return NotFound($"Unable to load Kwatera Główna with this ID.");
+                return NotFound($"Nie można załadować Kwatery Głównej z tym identyfikatorem.");
             }
             var myFunctionInKG = await _context.FunctionInOrganizations.FirstOrDefaultAsync(f => f.ScoutId == user.Id && f.ChorągiewId == id && f.HufiecId == id && f.DruzynaId == id && f.ZastepId == id);
             if (myFunctionInKG == null)
@@ -331,7 +331,7 @@ namespace ScouTeams.Controllers
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
-                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+                return NotFound($"Nie znaleziono tego użytkownika");
             }
             ViewData["TypeOrganization"] = "";
             List<Scout> scouts = new List<Scout>();
@@ -1167,13 +1167,13 @@ namespace ScouTeams.Controllers
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
-                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+                return NotFound($"Nie znaleziono tego użytkownika");
             }
 
             var tmp = await _context.Choragiews.FirstOrDefaultAsync(x => x.ChoragiewId == id);
             if (tmp == null)
             {
-                return NotFound($"Unable to load chorągiew with this ID.");
+                return NotFound($"Nie można załadować chorągwi o tym identyfikatorze.");
             }
             var myFunctionInChoragiew = await _context.FunctionInOrganizations.FirstOrDefaultAsync(f => f.ScoutId == user.Id && ((f.ChorągiewId == tmp.KwateraGlownaId && f.HufiecId == tmp.KwateraGlownaId && f.DruzynaId == tmp.KwateraGlownaId && f.ZastepId == tmp.KwateraGlownaId) || (f.ChorągiewId == id && f.HufiecId == -1 && f.DruzynaId == -1 && f.ZastepId == -1)));
             if (myFunctionInChoragiew == null)
@@ -1285,13 +1285,13 @@ namespace ScouTeams.Controllers
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
-                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+                return NotFound($"Nie znaleziono tego użytkownika");
             }
 
             var tmp = await _context.Hufiecs.FirstOrDefaultAsync(x => x.HufiecId == id);
             if (tmp == null)
             {
-                return NotFound($"Unable to load hufiec with this ID.");
+                return NotFound($"Nie można załadować hufca o tym identyfikatorze.");
             }
             var myFunctionInHufiec = await _context.FunctionInOrganizations.FirstOrDefaultAsync(f => f.ScoutId == user.Id && ((f.ChorągiewId == -1 && f.HufiecId == id && f.DruzynaId == -1 && f.ZastepId == -1) || (f.ChorągiewId == tmp.ChoragiewId && f.HufiecId == -1 && f.DruzynaId == -1 && f.ZastepId == -1)));
             if (myFunctionInHufiec == null)
@@ -1403,13 +1403,13 @@ namespace ScouTeams.Controllers
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
-                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+                return NotFound($"Nie znaleziono tego użytkownika");
             }
 
             var tmp = await _context.Druzynas.FirstOrDefaultAsync(x => x.DruzynaId == id);
             if (tmp == null)
             {
-                return NotFound($"Unable to load drużynę with this ID.");
+                return NotFound($"Nie można załadować drużyny o tym identyfikatorze.");
             }
             var myFunctionInDruzyna = await _context.FunctionInOrganizations.FirstOrDefaultAsync(f => f.ScoutId == user.Id && ((f.ChorągiewId == -1 && f.HufiecId == -1 && f.DruzynaId == id && f.ZastepId == -1) || (f.ChorągiewId == -1 && f.HufiecId == tmp.HufiecId && f.DruzynaId == -1 && f.ZastepId == -1)));
             if (myFunctionInDruzyna == null)
@@ -1521,13 +1521,13 @@ namespace ScouTeams.Controllers
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
-                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+                return NotFound($"Nie znaleziono tego użytkownika");
             }
 
             var tmp = await _context.Zastep.FirstOrDefaultAsync(x => x.ZastepId == id);
             if (tmp == null)
             {
-                return NotFound($"Unable to load zastęp with this ID.");
+                return NotFound($"Nie można załadować zastępu o tym identyfikatorze.");
             }
             ViewData["ScoutHasFunction"] = "no";
             var ScoutHasFunction = false;

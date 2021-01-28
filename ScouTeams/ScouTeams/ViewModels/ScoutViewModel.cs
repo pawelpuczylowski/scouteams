@@ -25,6 +25,7 @@ namespace ScouTeams.ViewModels
         [Display(Name = "E-mail")]
         public string Email { get; set; }
 
+        [DataType(DataType.Date)]
         [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:dd/MM/yyyy}")]
         [Display(Name = "Data urodzenia")]
         public DateTime DateOfBirth { get; set; }

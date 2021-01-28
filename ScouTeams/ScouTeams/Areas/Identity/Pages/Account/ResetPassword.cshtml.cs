@@ -28,18 +28,19 @@ namespace ScouTeams.Areas.Identity.Pages.Account
 
         public class InputModel
         {
-            [Required]
+            [Required(ErrorMessage = "Proszę podać swój email")]
             [EmailAddress]
             public string Email { get; set; }
 
-            [Required]
-            [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
+            [Required(ErrorMessage = "Proszę podać nowe hasło")]
+            [StringLength(100, ErrorMessage = "{0} musi mieć co najmniej {2} i maksymalnie {1} znaków.", MinimumLength = 6)]
+            [Display(Name = "Hasło")]
             [DataType(DataType.Password)]
             public string Password { get; set; }
 
             [DataType(DataType.Password)]
-            [Display(Name = "Confirm password")]
-            [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+            [Display(Name = "Powtórz hasło")]
+            [Compare("Password", ErrorMessage = "hasło i powtórzone hasło nie pasują.")]
             public string ConfirmPassword { get; set; }
 
             public string Code { get; set; }
@@ -49,7 +50,7 @@ namespace ScouTeams.Areas.Identity.Pages.Account
         {
             if (code == null)
             {
-                return BadRequest("A code must be supplied for password reset.");
+                return BadRequest("Aby zresetować hasło, należy podać kod.");
             }
             else
             {

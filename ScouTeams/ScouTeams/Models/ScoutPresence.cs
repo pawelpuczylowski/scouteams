@@ -9,7 +9,7 @@ namespace ScouTeams.Models
 {
     public enum Presence
     {
-        [Display(Name = "Obecność")] Attending, [Display(Name = "Spóźnienie")] Late, [Display(Name = "Nieobecność")] Absent
+        [Display(Name = "Obecność")] Attending = 1, [Display(Name = "Spóźnienie")] Late, [Display(Name = "Nieobecność")] Absent
     }
 
     public class ScoutPresence

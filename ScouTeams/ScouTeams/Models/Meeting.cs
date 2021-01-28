@@ -14,6 +14,8 @@ namespace ScouTeams.Models
         [Display(Name = "Indeks zastępu")]
         public int ZastepId { get; set; }
 
+        [DataType(DataType.DateTime)]
+        [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:dd/MM/yyyy HH:mm}")]
         [Display(Name = "Data")]
         public DateTime Date { get; set; }
 

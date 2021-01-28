@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using ScouTeams.Areas.Identity.Data;
+using ScouTeams.Services;
 
 namespace ScouTeams.Areas.Identity.Pages.Account.Manage
 {
@@ -18,12 +19,12 @@ namespace ScouTeams.Areas.Identity.Pages.Account.Manage
     {
         private readonly UserManager<Scout> _userManager;
         private readonly SignInManager<Scout> _signInManager;
-        private readonly IEmailSender _emailSender;
+        private readonly IMailService _emailSender;
 
         public EmailModel(
             UserManager<Scout> userManager,
             SignInManager<Scout> signInManager,
-            IEmailSender emailSender)
+            IMailService emailSender)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -46,7 +47,7 @@ namespace ScouTeams.Areas.Identity.Pages.Account.Manage
         {
             [Required]
             [EmailAddress]
-            [Display(Name = "New email")]
+            [Display(Name = "Nowy email")]
             public string NewEmail { get; set; }
         }
 
@@ -68,7 +69,7 @@ namespace ScouTeams.Areas.Identity.Pages.Account.Manage
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
-                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+                return NotFound($"Nie znaleziono tego użytkownika");
             }
 
             await LoadAsync(user);
@@ -80,7 +81,7 @@ namespace ScouTeams.Areas.Identity.Pages.Account.Manage
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
-                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+                return NotFound($"Nie znaleziono tego użytkownika");
             }
 
             if (!ModelState.IsValid)
@@ -101,14 +102,14 @@ namespace ScouTeams.Areas.Identity.Pages.Account.Manage
                     protocol: Request.Scheme);
                 await _emailSender.SendEmailAsync(
                     Input.NewEmail,
-                    "Confirm your email",
-                    $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                    "Potwierdź swojego e-maila",
+                    $"By potwierdzić maila by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>kliknij tutaj</a>.");
 
-                StatusMessage = "Confirmation link to change email sent. Please check your email.";
+                StatusMessage = "Wysłano link do potwierdzenia zmiany wiadomości e-mail. Proszę sprawdzić email.";
                 return RedirectToPage();
             }
 
-            StatusMessage = "Your email is unchanged.";
+            StatusMessage = "Twój email pozostaje niezmieniony.";
             return RedirectToPage();
         }
 
@@ -117,7 +118,7 @@ namespace ScouTeams.Areas.Identity.Pages.Account.Manage
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
-                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+                return NotFound($"Nie znaleziono tego użytkownika");
             }
 
             if (!ModelState.IsValid)
@@ -137,10 +138,10 @@ namespace ScouTeams.Areas.Identity.Pages.Account.Manage
                 protocol: Request.Scheme);
             await _emailSender.SendEmailAsync(
                 email,
-                "Confirm your email",
-                $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                    "Potwierdź swojego e-maila",
+                    $"By potwierdzić maila by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>kliknij tutaj</a>.");
 
-            StatusMessage = "Verification email sent. Please check your email.";
+            StatusMessage = "Wysłano link do potwierdzenia zmiany wiadomości e-mail. Proszę sprawdzić email.";
             return RedirectToPage();
         }
     }

@@ -157,29 +157,6 @@ namespace ScouTeams.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            //var choragiew = await _context.Choragiews.FindAsync(id);
-            //if (choragiew == null)
-            //{
-            //    return RedirectToAction(nameof(Index));
-            //}
-            //try
-            //{
-            //    choragiew.KwateraGlowna = null;
-            //    choragiew.KwateraGlownaId = 0;
-            //    _context.Update(choragiew);
-            //    await _context.SaveChangesAsync();
-            //}
-            //catch (DbUpdateConcurrencyException)
-            //{
-            //    if (!ChoragiewExists(choragiew.ChoragiewId))
-            //    {
-            //        return NotFound();
-            //    }
-            //    else
-            //    {
-            //        throw;
-            //    }
-            //}
             var choragiew = await _context.Choragiews.FindAsync(id);
             _context.Choragiews.Remove(choragiew);
             await _context.SaveChangesAsync();

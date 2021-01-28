@@ -2,28 +2,51 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ScouTeams.Data;
 using ScouTeams.Models;
+using ScouTeams.ViewModels;
 
 namespace ScouTeams.Controllers
 {
+    [Authorize]
     public class ScoutPresencesController : Controller
     {
         private readonly ScouTDBContext _context;
-
+        
         public ScoutPresencesController(ScouTDBContext context)
         {
             _context = context;
         }
 
         // GET: ScoutPresences
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int id)
         {
-            var scouTDBContext = _context.ScoutPresence.Include(s => s.Meeting);
-            return View(await scouTDBContext.ToListAsync());
+            var scouTDBContext = _context.ScoutPresence.Where(s => s.MeetingId == id);
+            List<PresenceWithMeeting> list = new List<PresenceWithMeeting>();
+            foreach (var item in scouTDBContext)
+            {
+                PresenceWithMeeting presenceWithMeeting = new PresenceWithMeeting();
+                presenceWithMeeting.ScoutPresenceId = item.ScoutPresenceId;
+                presenceWithMeeting.MeetingId = id;
+                presenceWithMeeting.Presence = item.Presence;
+                presenceWithMeeting.ScoutId = item.ScoutId;
+                var scout = await _context.Users.FirstOrDefaultAsync(u => u.Id == item.ScoutId);
+                presenceWithMeeting.ScoutName = scout.FirstName;
+                presenceWithMeeting.ScoutSurname = scout.LastName;
+                list.Add(presenceWithMeeting);
+            }
+            var first = list.FirstOrDefault();
+            if(first!= null)
+            {
+                var meeting = await _context.Meetings.FirstOrDefaultAsync(x => x.MeetingId == first.MeetingId);
+                ViewData["OrganizationID"] = meeting.ZastepId;
+                ViewData["OrganizationType"] = TypeOrganization.Zastep;
+            }
+            return View(list);
         }
 
         // GET: ScoutPresences/Details/5
@@ -82,7 +105,6 @@ namespace ScouTeams.Controllers
             {
                 return NotFound();
             }
-            ViewData["MeetingId"] = new SelectList(_context.Meetings, "MeetingId", "MeetingId", scoutPresence.MeetingId);
             return View(scoutPresence);
         }
 
@@ -116,9 +138,8 @@ namespace ScouTeams.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Index), new { id = scoutPresence.MeetingId });
             }
-            ViewData["MeetingId"] = new SelectList(_context.Meetings, "MeetingId", "MeetingId", scoutPresence.MeetingId);
             return View(scoutPresence);
         }
 

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using ScouTeams.Areas.Identity.Data;
+using ScouTeams.Services;
 
 namespace ScouTeams.Areas.Identity.Pages.Account
 {
@@ -14,9 +15,9 @@ namespace ScouTeams.Areas.Identity.Pages.Account
     public class RegisterConfirmationModel : PageModel
     {
         private readonly UserManager<Scout> _userManager;
-        private readonly IEmailSender _sender;
+        private readonly IMailService _sender;
 
-        public RegisterConfirmationModel(UserManager<Scout> userManager, IEmailSender sender)
+        public RegisterConfirmationModel(UserManager<Scout> userManager, IMailService sender)
         {
             _userManager = userManager;
             _sender = sender;
@@ -38,7 +39,7 @@ namespace ScouTeams.Areas.Identity.Pages.Account
             var user = await _userManager.FindByEmailAsync(email);
             if (user == null)
             {
-                return NotFound($"Unable to load user with email '{email}'.");
+                return NotFound($"Nie można załadować użytkownika z emailem '{email}'.");
             }
 
             Email = email;

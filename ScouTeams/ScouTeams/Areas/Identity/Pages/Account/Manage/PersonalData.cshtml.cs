@@ -63,7 +63,7 @@ namespace ScouTeams.Areas.Identity.Pages.Account.Manage
             public string PESEL { get; set; }
         }
 
-        private async Task LoadAsync(Scout user)
+        private void Load(Scout user)
         {
             ScoutDegree = user.ScoutDegree;
             InstructorDegree = user.InstructorDegree;
@@ -86,7 +86,7 @@ namespace ScouTeams.Areas.Identity.Pages.Account.Manage
                 return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
             }
 
-            await LoadAsync(user);
+            Load(user);
             return Page();
         }
 
@@ -100,7 +100,7 @@ namespace ScouTeams.Areas.Identity.Pages.Account.Manage
 
             if (!ModelState.IsValid)
             {
-                await LoadAsync(user);
+                Load(user);
                 return Page();
             }
 
@@ -130,12 +130,12 @@ namespace ScouTeams.Areas.Identity.Pages.Account.Manage
             if (result.Succeeded)
             {
                 await _signInManager.RefreshSignInAsync(user);
-                StatusMessage = "Your profile has been updated";
+                StatusMessage = "Twój profil został zaktualizowany.";
                 return RedirectToPage();
             }
             else
             {
-                StatusMessage = "Unexpected error when trying to set phone number.";
+                StatusMessage = "Wystąpił błąd podczas zapisywania danych.";
                 return RedirectToPage();
             }
         }

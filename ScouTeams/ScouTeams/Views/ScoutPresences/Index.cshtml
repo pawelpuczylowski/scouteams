@@ -1,48 +1,45 @@
-﻿@model IEnumerable<ScouTeams.Models.ScoutPresence>
+﻿@model IEnumerable<ScouTeams.ViewModels.PresenceWithMeeting>
 
 @{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Index</h1>
-
 <p>
-    <a asp-action="Create">Create New</a>
+    @Html.ActionLink("Wróć", "Index", "Meetings", new { OrganizationId = ViewData["OrganizationID"], type = ViewData["OrganizationType"] })
 </p>
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.ScoutId)
+                @Html.DisplayNameFor(model => model.ScoutName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ScoutSurname)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Presence)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Meeting)
             </th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.ScoutId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Presence)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Meeting.MeetingId)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.ScoutPresenceId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.ScoutPresenceId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.ScoutPresenceId">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ScoutName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ScoutSurname)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Presence)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.ScoutPresenceId">Edytuj</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
