@@ -454,7 +454,7 @@ namespace ScouTeams.Controllers
 
                     if (scout.KwateraGlowna == null || scout.KwateraGlowna.KwateraGlownaId != tmpC.KwateraGlownaId)
                     {
-                        await AddScout(scoutId, tmpC.KwateraGlownaId, TypeOrganization.KwateraGlowna);
+                        return RedirectToAction(nameof(AddScout), new { scoutId, OrganizationId = tmpC.KwateraGlownaId, type = TypeOrganization.KwateraGlowna });
                     }
                     return RedirectToAction(nameof(ShowScoutsForRecruitment));
 
@@ -470,10 +470,11 @@ namespace ScouTeams.Controllers
                     _context.Add(userHufiec);
                     await _context.SaveChangesAsync();
 
-                    var scoutInThisChoragiew = _context.UserChoragiews.FirstOrDefaultAsync(u => u.ScoutId == scoutId && u.ChoragiewId == tmpH.ChoragiewId);
+                    var scoutInThisChoragiew = await _context.UserChoragiews.FirstOrDefaultAsync(u => u.ScoutId == scoutId && u.ChoragiewId == tmpH.ChoragiewId);
                     if (scoutInThisChoragiew == null)
                     {
-                        await AddScout(scoutId, tmpH.ChoragiewId, TypeOrganization.Choragiew);
+                        var grs = scoutInThisChoragiew;
+                        return RedirectToAction(nameof(AddScout), new { scoutId, OrganizationId = tmpH.ChoragiewId, type = TypeOrganization.Choragiew });
                     }
                     return RedirectToAction(nameof(ShowScoutsForRecruitment));
 
@@ -489,10 +490,10 @@ namespace ScouTeams.Controllers
                     _context.Add(userDruzyna);
                     await _context.SaveChangesAsync();
 
-                    var scoutInThisHufiec = _context.UserHufiecs.FirstOrDefaultAsync(u => u.ScoutId == scoutId && u.HufiecId == tmpD.HufiecId);
+                    var scoutInThisHufiec = await _context.UserHufiecs.FirstOrDefaultAsync(u => u.ScoutId == scoutId && u.HufiecId == tmpD.HufiecId);
                     if (scoutInThisHufiec == null)
                     {
-                        await AddScout(scoutId, tmpD.HufiecId, TypeOrganization.Hufiec);
+                        return RedirectToAction(nameof(AddScout), new { scoutId, OrganizationId = tmpD.HufiecId, type = TypeOrganization.Hufiec });
                     }
                     return RedirectToAction(nameof(ShowScoutsForRecruitment));
 
@@ -508,10 +509,10 @@ namespace ScouTeams.Controllers
                     _context.Add(userZastep);
                     await _context.SaveChangesAsync();
 
-                    var scoutInThisDruzyna = _context.UserDruzynas.FirstOrDefaultAsync(u => u.ScoutId == scoutId && u.DruzynaId == tmpZ.DruzynaId);
+                    var scoutInThisDruzyna = await _context.UserDruzynas.FirstOrDefaultAsync(u => u.ScoutId == scoutId && u.DruzynaId == tmpZ.DruzynaId);
                     if (scoutInThisDruzyna == null)
                     {
-                        await AddScout(scoutId, tmpZ.DruzynaId, TypeOrganization.Druzyna);
+                        return RedirectToAction(nameof(AddScout), new { scoutId, OrganizationId = tmpZ.DruzynaId, type = TypeOrganization.Druzyna });
                     }
                     return RedirectToAction(nameof(ShowScoutsForRecruitment));
 
