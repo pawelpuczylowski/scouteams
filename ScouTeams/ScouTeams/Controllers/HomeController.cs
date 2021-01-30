@@ -473,7 +473,6 @@ namespace ScouTeams.Controllers
                     var scoutInThisChoragiew = await _context.UserChoragiews.FirstOrDefaultAsync(u => u.ScoutId == scoutId && u.ChoragiewId == tmpH.ChoragiewId);
                     if (scoutInThisChoragiew == null)
                     {
-                        var grs = scoutInThisChoragiew;
                         return RedirectToAction(nameof(AddScout), new { scoutId, OrganizationId = tmpH.ChoragiewId, type = TypeOrganization.Choragiew });
                     }
                     return RedirectToAction(nameof(ShowScoutsForRecruitment));
