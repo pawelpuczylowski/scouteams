@@ -23,6 +23,7 @@ namespace ScouTeams.Areas.Identity.Pages.Account.Manage
             _signInManager = signInManager;
         }
 
+        [Display(Name = "Login")]
         public string Username { get; set; }
 
         [TempData]

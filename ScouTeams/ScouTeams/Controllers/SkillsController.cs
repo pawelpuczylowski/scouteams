@@ -66,7 +66,7 @@ namespace ScouTeams.Controllers
             {
                 _context.Add(skill);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index), new { skill.ScoutId });
+                return RedirectToAction(nameof(Index), new { scoutId = skill.ScoutId });
             }
             ViewData["scoutId"] = skill.ScoutId;
             return View(skill);
@@ -118,7 +118,7 @@ namespace ScouTeams.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index), new { skill.ScoutId });
+                return RedirectToAction(nameof(Index), new { scoutId = skill.ScoutId });
             }
             return View(skill);
         }

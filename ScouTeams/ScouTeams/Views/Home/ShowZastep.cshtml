@@ -70,9 +70,7 @@
                 @if (ViewData["ScoutHasFunction"].ToString() == "yes")
                 {
                     <td>
-                        @Html.DisplayFor(modelItem => item.Functions) <br />
-                        @Html.ActionLink("Nadaj funkcję", "AddFunctionScout", new { scoutId = item.Id, OrganizationId = ViewData["OrganizationID"], type = ViewData["TypeOrganization"] }) |
-                        @Html.ActionLink("Odbierz funkcję", "Index", "FunctionInOrganizations", new { scoutId = item.Id, OrganizationId = ViewData["OrganizationID"], type = ViewData["TypeOrganization"] })
+                        @Html.DisplayFor(modelItem => item.Functions)
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.Email)
@@ -84,17 +82,15 @@
                         @Html.DisplayFor(modelItem => item.PaidContributions)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.ScoutDegree) <br />
-                        @Html.ActionLink("Edytuj stopień harcerski", "EditScoutDegree", new { scoutId = item.Id })
+                        @Html.DisplayFor(modelItem => item.ScoutDegree)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.InstructorDegree) <br />
-                        @Html.ActionLink("Edytuj stopień instruktorski", "EditInstructorDegree", new { scoutId = item.Id })
+                        @Html.DisplayFor(modelItem => item.InstructorDegree)
                     </td>
                     <td>
                         @Html.ActionLink("Składki", "Index", "Contributions", new { scoutId = item.Id, type = ViewData["TypeOrganization"] }) |
                         @Html.ActionLink("Wyślij Email", "SendEmailToScout", new { mail = item.Email }) |
-                        @if (String.IsNullOrEmpty(item.Functions))@Html.ActionLink("Usuń", "DeleteScout", new { scoutId = item.Id, OrganizationId = ViewData["OrganizationID"], type = ViewData["TypeOrganization"] }, new { onclick = "return confirm('Na pewno usunąć z Kwatery Głównej?');" })
+                        @if (String.IsNullOrEmpty(item.Functions))@Html.ActionLink("Usuń", "DeleteScout", new { scoutId = item.Id, OrganizationId = ViewData["OrganizationID"], type = ViewData["TypeOrganization"] }, new { onclick = "return confirm('Na pewno usunąć z zastępu?');" })
                     </td>
                 }
             </tr>

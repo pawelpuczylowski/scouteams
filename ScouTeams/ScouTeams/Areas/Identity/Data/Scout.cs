@@ -39,11 +39,8 @@ namespace ScouTeams.Areas.Identity.Data
 
         public KwateraGlowna KwateraGlowna { get; set; }
         public virtual ICollection<UserChoragiew> Choragiews { get; set; }
-
         public virtual ICollection<UserHufiec> Hufiecs { get; set; }
-
         public virtual ICollection<UserDruzyna> Druzynas { get; set; }
-
         public virtual ICollection<UserZastep> Zasteps { get; set; }
 
         [Display(Name = "Stopień harcerski")]

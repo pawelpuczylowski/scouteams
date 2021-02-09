@@ -30,7 +30,7 @@
 </div>
 
 <div>
-    <a asp-action="Edit" asp-route-id="MeetingId">Wróć</a>
+    @Html.ActionLink("Wróć", "Index", new { id = ViewData["MeetingId"] })
 </div>
 
 @section Scripts {

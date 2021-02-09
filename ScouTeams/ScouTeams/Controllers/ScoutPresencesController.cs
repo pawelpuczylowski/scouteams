@@ -105,6 +105,7 @@ namespace ScouTeams.Controllers
             {
                 return NotFound();
             }
+            ViewData["MeetingId"] = scoutPresence.MeetingId;
             return View(scoutPresence);
         }
 
@@ -140,6 +141,7 @@ namespace ScouTeams.Controllers
                 }
                 return RedirectToAction(nameof(Index), new { id = scoutPresence.MeetingId });
             }
+            ViewData["MeetingId"] = scoutPresence.MeetingId;
             return View(scoutPresence);
         }
 

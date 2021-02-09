@@ -103,7 +103,7 @@ namespace ScouTeams.Areas.Identity.Pages.Account.Manage
                 await _emailSender.SendEmailAsync(
                     Input.NewEmail,
                     "Potwierdź swojego e-maila",
-                    $"By potwierdzić maila by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>kliknij tutaj</a>.");
+                    $"By zmienić e-maila <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>kliknij tutaj</a>.");
 
                 StatusMessage = "Wysłano link do potwierdzenia zmiany wiadomości e-mail. Proszę sprawdzić email.";
                 return RedirectToPage();
@@ -139,7 +139,7 @@ namespace ScouTeams.Areas.Identity.Pages.Account.Manage
             await _emailSender.SendEmailAsync(
                 email,
                     "Potwierdź swojego e-maila",
-                    $"By potwierdzić maila by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>kliknij tutaj</a>.");
+                    $"By potwierdzić maila <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>kliknij tutaj</a>.");
 
             StatusMessage = "Wysłano link do potwierdzenia zmiany wiadomości e-mail. Proszę sprawdzić email.";
             return RedirectToPage();

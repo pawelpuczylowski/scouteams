@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using ScouTeams.Areas.Identity.Data;
+using ScouTeams.Data;
 
 namespace ScouTeams.Areas.Identity.Pages.Account
 {
@@ -17,11 +18,13 @@ namespace ScouTeams.Areas.Identity.Pages.Account
     {
         private readonly UserManager<Scout> _userManager;
         private readonly SignInManager<Scout> _signInManager;
+        private readonly ScouTDBContext _context;
 
-        public ConfirmEmailChangeModel(UserManager<Scout> userManager, SignInManager<Scout> signInManager)
+        public ConfirmEmailChangeModel(UserManager<Scout> userManager, SignInManager<Scout> signInManager, ScouTDBContext context)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _context = context;
         }
 
         [TempData]
@@ -42,7 +45,12 @@ namespace ScouTeams.Areas.Identity.Pages.Account
 
             code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(code));
             var result = await _userManager.ChangeEmailAsync(user, email, code);
-            if (!result.Succeeded)
+            if (user != null && email != null) 
+            {
+                user.Email = email;
+                await _context.SaveChangesAsync();
+            }
+            else
             {
                 StatusMessage = "Błąd podczas zmiany adresu e-mail.";
                 return Page();

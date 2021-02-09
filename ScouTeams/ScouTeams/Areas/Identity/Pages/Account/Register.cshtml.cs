@@ -63,8 +63,9 @@ namespace ScouTeams.Areas.Identity.Pages.Account
             [Required(ErrorMessage = "Proszę podać datę urodzenia")]
             public DateTime DateOfBirth { get; set; }
 
-            [Display(Name = "Numer komórkowy")]
-            [Required(ErrorMessage = "Proszę podać numer komórkowy")]
+            [Display(Name = "Numer telefonu")]
+            [Phone]
+            [Required(ErrorMessage = "Proszę podać numer telefonu")]
             [DataType(DataType.PhoneNumber)]
             public string PhoneNumber { get; set; }
 

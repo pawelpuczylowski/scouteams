@@ -58,25 +58,29 @@ namespace ScouTeams.Controllers
                     if (function.DruzynaId == function.ZastepId && function.HufiecId == function.DruzynaId && function.DruzynaId == function.ChorągiewId)
                     {
                         Assignment assignment = new Assignment(TypeOrganization.KwateraGlowna, function.DruzynaId, "Kwatera Główna");
-                        assignments.Add(assignment);
+                        if (!assignments.Exists(x => x.TypeOrganization == assignment.TypeOrganization && x.OrganizationId == assignment.OrganizationId))
+                            assignments.Add(assignment);
                     }
                     else if (function.ChorągiewId != -1)
                     {
                         var myAssignment = await _context.Choragiews.FirstOrDefaultAsync(x => x.ChoragiewId == function.ChorągiewId);
                         Assignment assignment = new Assignment(TypeOrganization.Choragiew, myAssignment.ChoragiewId, myAssignment.Name);
-                        assignments.Add(assignment);
+                        if (!assignments.Exists(x => x.TypeOrganization == assignment.TypeOrganization && x.OrganizationId == assignment.OrganizationId))
+                            assignments.Add(assignment);
                     }
                     else if (function.HufiecId != -1)
                     {
                         var myAssignment = await _context.Hufiecs.FirstOrDefaultAsync(x => x.HufiecId == function.HufiecId);
                         Assignment assignment = new Assignment(TypeOrganization.Hufiec, myAssignment.HufiecId, myAssignment.Name);
-                        assignments.Add(assignment);
+                        if (!assignments.Exists(x => x.TypeOrganization == assignment.TypeOrganization && x.OrganizationId == assignment.OrganizationId))
+                            assignments.Add(assignment);
                     }
                     else if (function.DruzynaId != -1)
                     {
                         var myAssignment = await _context.Druzynas.FirstOrDefaultAsync(x => x.DruzynaId == function.DruzynaId);
                         Assignment assignment = new Assignment(TypeOrganization.Druzyna, myAssignment.DruzynaId, myAssignment.Name);
-                        assignments.Add(assignment);
+                        if (!assignments.Exists(x => x.TypeOrganization == assignment.TypeOrganization && x.OrganizationId == assignment.OrganizationId))
+                            assignments.Add(assignment);
                     }
                 }
             }
@@ -89,7 +93,8 @@ namespace ScouTeams.Controllers
                     {
                         var myAssignment = await _context.Zastep.FirstOrDefaultAsync(x => x.ZastepId == zastep.ZastepId);
                         Assignment assignment = new Assignment(TypeOrganization.Zastep, zastep.ZastepId, myAssignment.Name);
-                        assignments.Add(assignment);
+                        if (!assignments.Exists(x => x.TypeOrganization == assignment.TypeOrganization && x.OrganizationId == assignment.OrganizationId))
+                            assignments.Add(assignment);
                     }
                 }
             }
@@ -120,21 +125,21 @@ namespace ScouTeams.Controllers
             }
             List<MeetingWithPresence> meetingsWithPresence = new List<MeetingWithPresence>();
 
-            var myMeetings = _context.Meetings.Where(m => m.ScoutId == user.Id);
+            //var myMeetings = _context.Meetings.Where(m => m.ScoutId == user.Id);
 
-            foreach (var m in myMeetings)
-            {
-                MeetingWithPresence meetingWithPresence = new MeetingWithPresence();
-                meetingWithPresence.MeetingId = m.MeetingId;
-                var zastep = await _context.Zastep.FirstOrDefaultAsync(z => z.ZastepId == m.ZastepId);
-                if (zastep != null)
-                {
-                    meetingWithPresence.ZastepName = zastep.Name;
-                }
-                meetingWithPresence.Date = m.Date;
-                meetingWithPresence.Presence = Presence.Attending;
-                meetingsWithPresence.Add(meetingWithPresence);
-            }
+            //foreach (var m in myMeetings)
+            //{
+            //    MeetingWithPresence meetingWithPresence = new MeetingWithPresence();
+            //    meetingWithPresence.MeetingId = m.MeetingId;
+            //    var zastep = await _context.Zastep.FirstOrDefaultAsync(z => z.ZastepId == m.ZastepId);
+            //    if (zastep != null)
+            //    {
+            //        meetingWithPresence.ZastepName = zastep.Name;
+            //    }
+            //    meetingWithPresence.Date = m.Date;
+            //    meetingWithPresence.Presence = Presence.Attending;
+            //    meetingsWithPresence.Add(meetingWithPresence);
+            //}
 
             var myPresences = _context.ScoutPresence.Where(s => s.ScoutId == user.Id);
             foreach (var presence in myPresences)
@@ -142,12 +147,16 @@ namespace ScouTeams.Controllers
                 MeetingWithPresence meetingWithPresence = new MeetingWithPresence();
                 meetingWithPresence.MeetingId = presence.MeetingId;
                 var meeting = await _context.Meetings.FirstOrDefaultAsync(x => x.MeetingId == presence.MeetingId);
-                if(meeting != null)
+                if (meeting != null)
                 {
                     var zastep = await _context.Zastep.FirstOrDefaultAsync(z => z.ZastepId == meeting.ZastepId);
                     if (zastep != null)
                     {
                         meetingWithPresence.ZastepName = zastep.Name;
+                    }
+                    else
+                    {
+                        meetingWithPresence.ZastepName = "Zastęp został rozwiązany.";
                     }
                     meetingWithPresence.Date = meeting.Date;
 
@@ -1731,7 +1740,7 @@ namespace ScouTeams.Controllers
 
             _context.Add(functionInOrganization);
             await _context.SaveChangesAsync();
-            
+
             return RedirectToAction(nameof(Index));
         }
 
