@@ -125,22 +125,6 @@ namespace ScouTeams.Controllers
             }
             List<MeetingWithPresence> meetingsWithPresence = new List<MeetingWithPresence>();
 
-            //var myMeetings = _context.Meetings.Where(m => m.ScoutId == user.Id);
-
-            //foreach (var m in myMeetings)
-            //{
-            //    MeetingWithPresence meetingWithPresence = new MeetingWithPresence();
-            //    meetingWithPresence.MeetingId = m.MeetingId;
-            //    var zastep = await _context.Zastep.FirstOrDefaultAsync(z => z.ZastepId == m.ZastepId);
-            //    if (zastep != null)
-            //    {
-            //        meetingWithPresence.ZastepName = zastep.Name;
-            //    }
-            //    meetingWithPresence.Date = m.Date;
-            //    meetingWithPresence.Presence = Presence.Attending;
-            //    meetingsWithPresence.Add(meetingWithPresence);
-            //}
-
             var myPresences = _context.ScoutPresence.Where(s => s.ScoutId == user.Id);
             foreach (var presence in myPresences)
             {
@@ -269,7 +253,7 @@ namespace ScouTeams.Controllers
                 if (contributions == null || contributions.Count == 0) scoutViewModel.PaidContributions = false;
                 else
                 {
-                    if (contributions.Count() - 1 > MonthDifference(contributions.First().Date)) scoutViewModel.PaidContributions = true;
+                    if (contributions.Count() - 1 >= MonthDifference(contributions.First().Date)) scoutViewModel.PaidContributions = true;
                     else scoutViewModel.PaidContributions = false;
                 }
 
@@ -1230,7 +1214,7 @@ namespace ScouTeams.Controllers
                 if (contributions == null || contributions.Count == 0) scoutViewModel.PaidContributions = false;
                 else
                 {
-                    if (contributions.Count() - 1 > MonthDifference(contributions.First().Date)) scoutViewModel.PaidContributions = true;
+                    if (contributions.Count() - 1 >= MonthDifference(contributions.First().Date)) scoutViewModel.PaidContributions = true;
                     else scoutViewModel.PaidContributions = false;
                 }
 
@@ -1348,7 +1332,7 @@ namespace ScouTeams.Controllers
                 if (contributions == null || contributions.Count == 0) scoutViewModel.PaidContributions = false;
                 else
                 {
-                    if (contributions.Count() - 1 > MonthDifference(contributions.First().Date)) scoutViewModel.PaidContributions = true;
+                    if (contributions.Count() - 1 >= MonthDifference(contributions.First().Date)) scoutViewModel.PaidContributions = true;
                     else scoutViewModel.PaidContributions = false;
                 }
 
@@ -1466,7 +1450,7 @@ namespace ScouTeams.Controllers
                 if (contributions == null || contributions.Count == 0) scoutViewModel.PaidContributions = false;
                 else
                 {
-                    if (contributions.Count() - 1 > MonthDifference(contributions.First().Date)) scoutViewModel.PaidContributions = true;
+                    if (contributions.Count() - 1 >= MonthDifference(contributions.First().Date)) scoutViewModel.PaidContributions = true;
                     else scoutViewModel.PaidContributions = false;
                 }
 
@@ -1588,7 +1572,7 @@ namespace ScouTeams.Controllers
                 if (contributions == null || contributions.Count == 0) scoutViewModel.PaidContributions = false;
                 else
                 {
-                    if (contributions.Count() - 1 > MonthDifference(contributions.First().Date)) scoutViewModel.PaidContributions = true;
+                    if (contributions.Count() - 1 >= MonthDifference(contributions.First().Date)) scoutViewModel.PaidContributions = true;
                     else scoutViewModel.PaidContributions = false;
                 }
 

@@ -17,6 +17,8 @@ namespace ScouTeams.Models
         [Display(Name = "Kwota")]
         public float Amount { get; set; }
 
+        [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:dd/MM/yyyy HH:mm}")]
+        [DataType(DataType.Date)]
         [Display(Name = "Data")]
         public DateTime Date { get; set; }
     }
