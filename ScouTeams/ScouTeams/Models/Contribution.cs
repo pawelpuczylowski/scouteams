@@ -18,7 +18,7 @@ namespace ScouTeams.Models
         public float Amount { get; set; }
 
         [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:dd/MM/yyyy HH:mm}")]
-        [DataType(DataType.Date)]
+        [DataType(DataType.DateTime)]
         [Display(Name = "Data")]
         public DateTime Date { get; set; }
     }
